@@ -56,9 +56,8 @@ class chordCatalog {
      * @return string $randomMatchingChord Random chord from array
      */
     public function getRandomChordFromArray($array){
-        # Move the internal pointer to the end of the array
+        # Fetches the key of the last entry in array
         end($array);
-        # Fetches key of element pointed by internal pointer
         $lastIndexKey = key($array);
         # Chooses random index
         $randomMatchingChord = rand(0,$lastIndexKey);
