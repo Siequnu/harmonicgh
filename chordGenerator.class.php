@@ -107,7 +107,6 @@ class chordGenerator {
         # Set the first item to be the first chord
         $this->sequence[] = $firstChord;
         
-        
         for ($generationCycles = 1; $generationCycles <= $totalChords; $generationCycles++)
         {   
             # Generate new chord based on existing array
