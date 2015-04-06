@@ -2,9 +2,7 @@
 class chordCatalog {
 
     /*
-     *
      * Constructs a chord matrix
-     * 
      */
     public function __construct()
     {
@@ -35,7 +33,6 @@ class chordCatalog {
      * @param string $stemChord Chord which will trigger another chord
      *
      * @return string $matchingChord Returns next chord
-     * 
      */
     public function getNextChord($stemChord){
         
@@ -57,7 +54,6 @@ class chordCatalog {
      * @param array $array The array containing chords
      *
      * @return string $randomMatchingChord Random chord from array
-     * 
      */
     public function getRandomChordFromArray($array){
         # Move the internal pointer to the end of the array

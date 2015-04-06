@@ -92,8 +92,7 @@ class chordGenerator {
      * @param int $totalchords Positive integer representing wanted number of chords
      * @param string $firstChord Initial chord
      * 
-     * @return string String of logically generated chords
-     * 
+     * @return string String of logically generated chords 
      */
     private function generateChords ($totalChords, $firstChord)
     {
