@@ -6,8 +6,6 @@ class chordGenerator {
      private $initialChord = 'C';
      private $chordsPerBlock = 32;
      
-    
-    
      public function __construct()
      {
           
@@ -25,19 +23,33 @@ class chordGenerator {
                return;
           }
         
-          # Retrieve form data and assign it
+          # Validate and assign form data, if nothing was entered in blocks default is 1
+          if ($_POST['initialchord'] !== "C") {
+               if ($_POST['initialchord'] !== "c") {
+                    echo "Please enter C or c as starting chord";
+                    die;
+               }
+          }
+          
           $numberOfBlocks = $_POST['msg'];
+          $testBlocks = $numberOfBlocks+1;
+          if ($testBlocks == 1) {
+               $numberOfBlocks = 1;
+          }
           $this->initialChord = $_POST['initialchord'];
-          
-          
           
           # Calculate total number of chords needed
           $totalchords = $numberOfBlocks * $this->chordsPerBlock;
           $sequence = array ();
           
           # Generate sequence of chords
-          $sequence = $this->generateChords ($totalchords, $this->initialChord);
-        
+          for ($cycleNumbers = 0; $cycleNumbers < $numberOfBlocks; $cycleNumbers++) {
+               $verseBlock = $this->generateChords ($totalchords, $this->initialChord);
+               foreach ($verseBlock as $finalChord) {
+                    $sequence [] = $finalChord;
+               }
+          }
+          
           # Organize array into blocks and produce HTML
           $html = $this->organizeSequence ($sequence,$numberOfBlocks);
           echo $html;
@@ -89,8 +101,7 @@ class chordGenerator {
                $subMediantTonality = $chordCatalog->serialScale[$subMediantTonalityIndex];          
           }
           
-          # Initialize an empty array;
-          $this->sequence = array ();
+          # Initialize an empty array and set the first Chord
           $this->sequence[] = $firstChord;
 
           # Get first cadence
