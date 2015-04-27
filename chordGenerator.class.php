@@ -8,7 +8,7 @@ class chordGenerator {
      
      public function __construct()
      {
-          
+          # Do nothing   
      }
     
     /*
@@ -23,7 +23,7 @@ class chordGenerator {
                return;
           }
         
-          # Validate and assign form data, if nothing was entered in blocks default is 1
+          # Validate and assign form data, if nothing was entered in #-of-blocks default is 1
           if ($_POST['initialchord'] !== "C") {
                if ($_POST['initialchord'] !== "c") {
                     echo "Please enter C or c as starting chord";
@@ -44,28 +44,28 @@ class chordGenerator {
           
           # Generate sequence of chords
           for ($cycleNumbers = 0; $cycleNumbers < $numberOfBlocks; $cycleNumbers++) {
-               $verseBlock = $this->generateChords ($totalchords, $this->initialChord);
+               $verseBlock = $this->generateChords ($this->initialChord);
                foreach ($verseBlock as $finalChord) {
                     $sequence [] = $finalChord;
                }
           }
-          
+     
           # Organize array into blocks and produce HTML
           $html = $this->organizeSequence ($sequence,$numberOfBlocks);
           echo $html;
           
      }
     
+     
     
      /*
-     * Loop that generates chords starting with a given initial chord
+     * Loop that generates a verse of 32 chords starting with a given initial chord
      * 
-     * @param int $totalchords Positive integer representing wanted number of chords
      * @param string $firstChord Initial chord
      * 
      * @return string String of logically generated chords 
      */
-     public function generateChords ($totalChords, $firstChord)
+     public function generateChords ($firstChord)
      {
          
           include_once 'chordCatalog.class.php';
@@ -102,113 +102,57 @@ class chordGenerator {
           }
           
           # Initialize an empty array and set the first Chord
+          unset ($this->sequence);
           $this->sequence[] = $firstChord;
 
           # Get first cadence
           $firstCadenceArray = $this->cadenceGenerator ($startingCypher);
           
           # Convert cyphers into chords
-          foreach ($firstCadenceArray as &$cadenceCypher) {
-               if (ctype_upper ($startingCypher)) {
-                    $chord = $this->chordCatalog->CIndexMajor[$cadenceCypher];
-                    $cadenceCypher = $chord;
-               }
-               else
-               {
-                    $chord = $this->chordCatalog->CIndexMinor[$cadenceCypher];
-                    $cadenceCypher = $chord;
-               }
-          }
+          $firstCadenceArray = $this->chordCatalog->convertCypherIntoChord ($firstCadenceArray, $startingCypher, 'CIndexMajor', 'CIndexMinor');
           
           # Add cadence to sequence
-          foreach ($firstCadenceArray as $cadenceChord) {
-               $this->sequence[] = $cadenceChord;
-          }
-     
-               
+          $this->addArrayToMainSequence ($firstCadenceArray);
+        
           # Get dominant Cadence 
           $dominantCypher = (ctype_upper ($dominantKey) ? 'I' : 'i');
           $dominantCadenceArray = $this->cadenceGenerator ($dominantCypher);
+          
           # Convert cyphers into chords
-          foreach ($dominantCadenceArray as &$cadenceCypher) {
-               if (ctype_upper ($dominantCypher)) {
-                    $chord = $this->chordCatalog->GIndexMajor[$cadenceCypher];
-                    $cadenceCypher = $chord;
-               }
-               else
-               {
-                    $chord = $this->chordCatalog->GIndexMinor[$cadenceCypher];
-                    $cadenceCypher = $chord;
-               }
-          }
+          $dominantCadenceArray = $this->chordCatalog->convertCypherIntoChord ($dominantCadenceArray, $dominantCypher, 'GIndexMajor', 'GIndexMinor');
           
           # Add cadence to sequence, cadence comes a 3 part array so add dominant chord before it
           $this->sequence[] = $dominantTonality;
-          foreach ($dominantCadenceArray as $cadenceChord) {
-               $this->sequence[] = $cadenceChord;
-          }
           
-          
+          $this->addArrayToMainSequence ($dominantCadenceArray);
           
           # Get a harmonic progression for the next line of chords
-          $progressionLength = 8;  
           $modulationGoal = ((ctype_upper ($subMediantKey)) ? "vi" : "VI");
-          $progressionSequence = $this->progressionGenerator ($startingCypher, $progressionLength, $modulationGoal);
+          $progressionSequence = $this->progressionGenerator ($startingCypher);
           
           # Convert cyphers into chords
-          foreach ($progressionSequence as &$cypher) {
-               if (ctype_upper ($startingCypher)) {
-                    $cypher = $this->chordCatalog->CIndexMajor[$cypher];
-               }
-               else
-               {
-                    $cypher = $this->chordCatalog->CIndexMinor[$cypher];
-               }
-          }
+          $progressionSequence = $this->chordCatalog->convertCypherIntoChord ($progressionSequence, $startingCypher, 'CIndexMajor', 'CIndexMinor');
           
           # Generate cadence for the end         
-          $modulationRelationToTonic = $modulationGoal;
           $modulationGoal = ((ctype_upper ($modulationGoal)) ? "i" : "I" );
+          $modulationCadence = $this->cadenceGenerator ($modulationGoal);
           
-          if (ctype_upper ($modulationGoal)) {   # 0 = minor , 1 = Major 
-               # Pick random cadence style and generate array
-               $randomChoice = mt_rand (1,3);
-               $modulationCadence = $this->cadenceArrayGeneratorMajor ($modulationGoal, $randomChoice);
-          }
-          else
-          {
-               $randomChoice = mt_rand (1,2);
-               $modulationCadence = $this->cadenceArrayGeneratorMinor ($modulationGoal, $randomChoice);
-          }
           # Convert cyphers into chords
-          foreach ($modulationCadence as &$cypher) {
-               if (ctype_upper ($modulationGoal)) {
-                    $cypher = $this->chordCatalog->AbIndexMajor[$cypher];
+          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $modulationGoal, 'AbIndexMajor', 'AIndexMinor');
 
-               }
-               else
-               {
-                    $cypher = $this->chordCatalog->AIndexMinor[$cypher];
-               }
-          }
-          
           #Merge progression and modulation, and merge this to total sequence
           $indexToInsertCadence = 5; 
-          foreach ($modulationCadence as &$chord) {
+          foreach ($modulationCadence as $chord) {
                $progressionSequence [$indexToInsertCadence] = $chord;
                $indexToInsertCadence++;
           }
           
-          foreach ($progressionSequence as $chord) {
-               $this->sequence[] = $chord;
-          }
-          
-          
+          $this->addArrayToMainSequence ($progressionSequence);
           
           # Next line is freely generated in submediant
           $freeSequence [] = $subMediantCypher;
           
-          # Get a harmonic progression for 5 of the next line of chords
+          # Get a free choice for 4 of the next line of chords
           $generatedCypher = $subMediantCypher;
           if (ctype_upper ($subMediantCypher)) {
                for ($chordsGenerated = 0; $chordsGenerated <=3; $chordsGenerated++) {
@@ -224,60 +168,31 @@ class chordGenerator {
           }
      
           # Convert cyphers into chords
-          foreach ($freeSequence as &$cypher) {
-               if (ctype_upper ($startingCypher)) {
-                    $cypher = $this->chordCatalog->AIndexMinor[$cypher];
-               }
-               else
-               {
-                    $cypher = $this->chordCatalog->AbIndexMajor[$cypher];
-               }
-          }
+          $freeSequence = $this->chordCatalog->convertCypherIntoChord ($freeSequence, $startingCypher, 'AIndexMinor', 'AbIndexMajor');
                     
           # Generate cadence for the end of this line         
+          $initialIndex = (ctype_upper ($startingKey) ? 'I' : 'i');
+          $modulationCadence = $this->cadenceGenerator ($initialIndex);
           
-          if (ctype_upper ($startingKey)) {   # 0 = minor , 1 = Major 
-               # Pick random cadence style and generate array
-               $randomChoice = mt_rand (1,3);
-               $modulationCadence = $this->cadenceArrayGeneratorMajor ("I", $randomChoice);
-          }
-          else
-          {
-               $randomChoice = mt_rand (1,2);
-               $modulationCadence = $this->cadenceArrayGeneratorMinor ("i", $randomChoice);
-          }
           # Convert cyphers into chords
-          foreach ($modulationCadence as &$cypher) {
-               if (ctype_upper ($startingKey)) {
-                    $cypher = $this->chordCatalog->CIndexMajor[$cypher];
-
-               }
-               else
-               {
-                    $cypher = $this->chordCatalog->CIndexMinor[$cypher];
-               }
-          }
+          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $startingKey, 'CIndexMajor', 'CIndexMinor');
           
-          #Merge progression and modulation, and merge this to total sequence
+          # Merge cadence starting index 4 of sequence, and merge this to total sequence
           $indexToInsertCadence = 5; 
-          foreach ($modulationCadence as &$chord) {
+          foreach ($modulationCadence as $chord) {
                $freeSequence [$indexToInsertCadence] = $chord;
                $indexToInsertCadence++;
           }
           
-          foreach ($freeSequence as $chord) {
-               $this->sequence[] = $chord;
-          }
-          unset ($freeSequence);
+          $this->addArrayToMainSequence ($freeSequence);
           
-          
-          
+          unset ($freeSequence); 
           
           
           # Last line is freely generated in Tonic then cadence at end
           $freeSequence [] = $startingCypher;
           
-          # Get a random chord for 5 of the next chords
+          # Get a random chord for 4 of the next chords
           $generatedCypher = $startingCypher;
           if (ctype_upper ($startingCypher)) {
                for ($chordsGenerated = 0; $chordsGenerated <=3; $chordsGenerated++) {
@@ -292,50 +207,23 @@ class chordGenerator {
                }    
           }
           # Convert cyphers into chords
-          foreach ($freeSequence as &$cypher) {
-               if (ctype_upper ($startingCypher)) {
-                    $cypher = $this->chordCatalog->CIndexMajor[$cypher];
-               }
-               else
-               {
-                    $cypher = $this->chordCatalog->CIndexMinor[$cypher];
-               }
-          }
+          $freeSequence = $this->chordCatalog->convertCypherIntoChord ($freeSequence, $startingCypher, 'CIndexMajor', 'CIndexMinor');
                     
           # Generate cadence for the end of this line         
+          $initialIndex = (ctype_upper ($startingCypher) ? 'I' : 'i');
+          $modulationCadence = $this->cadenceGenerator ($initialIndex);
           
-          if (ctype_upper ($startingCypher)) {   # 0 = minor , 1 = Major 
-               # Pick random cadence style and generate array
-               $randomChoice = mt_rand (1,3);
-               $modulationCadence = $this->cadenceArrayGeneratorMajor ("I", $randomChoice);
-          }
-          else
-          {
-               $randomChoice = mt_rand (1,2);
-               $modulationCadence = $this->cadenceArrayGeneratorMinor ("i", $randomChoice);
-          }
           # Convert cyphers into chords
-          foreach ($modulationCadence as &$cypher) {
-               if (ctype_upper ($startingKey)) {
-                    $cypher = $this->chordCatalog->CIndexMajor[$cypher];
-
-               }
-               else
-               {
-                    $cypher = $this->chordCatalog->CIndexMinor[$cypher];
-               }
-          }
+          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $startingKey, 'CIndexMajor', 'CIndexMinor');
           
           #Merge progression and modulation, and merge this to total sequence
           $indexToInsertCadence = 5; 
-          foreach ($modulationCadence as &$chord) {
+          foreach ($modulationCadence as $chord) {
                $freeSequence [$indexToInsertCadence] = $chord;
                $indexToInsertCadence++;
           }
           
-          foreach ($freeSequence as $chord) {
-               $this->sequence[] = $chord;
-          }
+          $this->addArrayToMainSequence ($freeSequence);          
                     
           return $this->sequence;
           
@@ -372,24 +260,55 @@ class chordGenerator {
           </html>';
           return $formhtml;
      }
-    
+     
      
      /*
-      * Returns a generated cadence from a given index
+      *   Generate a Cadence and return an array with converted cyphers into chords
       *
-      * @param str $initialIndex i or I to generate a cadence
+      *   @param string $majorMinorDecider tested with ctype_upper to calculate either major or minor cadence
+      *   @param string $majorChordLibrary chordCatalog array index for majorLibrary
+      *   @param string $minorChordLibrary chordCatalog array index for minor library
       *
-      * @return array Array with 0, 1, 2 with ii V I (for example)
+      *   @return array [0] [1] [2] with converted chords (ie C F G C)
+      */
+     public function generateCadenceWithChords ($majorMinorDecider, $majorChordLibrary, $minorChordLibrary) {
+          # Generate cadence          
+          $modulationGoal = ((ctype_upper ($majorMinorDecider)) ? "I" : "i" );
+          $modulationCadence = $this->cadenceGenerator ($modulationGoal);
+               
+          # Convert cyphers into chords
+          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $modulationGoal, $majorChordLibrary, $minorChordLibrary);
+         
+          return $modulationCadence;
+     }
+     
+     
+     /*
+      *    Sequentially add an array contents to the main sequence
+      *
+      *    @param array $arrayToBeAdded Array to be added at end of sequence
+      */    
+     public function addArrayToMainSequence ($arrayToBeAdded) {
+          foreach ($arrayToBeAdded as $value) {
+               $this->sequence[] = $value;
+          }
+     }
+     
+     
+     /*
+      *    Returns a generated cadence from a given index
+      *
+      *    @param str $initialIndex i or I to generate a cadence
+      *
+      *    @return array Array with 0, 1, 2 with ii V I (for example)
       */    
      public function cadenceGenerator ($initialIndex) {
-               # Determine if Major or Minor cadence
+          # Determine if Major or Minor cadence
           if (ctype_upper ($initialIndex)) {   # 0 = minor initialCypher, 1 = Major initial cypher
                # Pick random cadence style and generate array
                $randomChoice = mt_rand (1,3);
                $resultArray = $this->cadenceArrayGeneratorMajor ($initialIndex, $randomChoice);
-          }
-          else
-          {
+          } else {
                $randomChoice = mt_rand (1,2);
                $resultArray = $this->cadenceArrayGeneratorMinor ($initialIndex, $randomChoice);               }
           return $resultArray;     
@@ -453,16 +372,15 @@ class chordGenerator {
           return $resultArray;
      }
      
+     
      /*
       * Returns a generated harmonic progression from a given index
       *
       * @param str $initialIndex i or I to generate a cadence
-      * @param integer $progressionLength how many chords in progression
-      * @param str $modulationGoal Chord to modulate to
       *
       * @return array Array with harmonic progression
       */    
-     public function progressionGenerator ($startingCypher, $progressionLength, $modulationGoal) {
+     public function progressionGenerator ($startingCypher) {
           
           # Set initial index as first chord
           $progressionArray [] = $startingCypher;
@@ -505,6 +423,7 @@ class chordGenerator {
           return $progressionArray;         
      }
      
+     
      public function progressionGeneratorMinor ($startingCypher) {
           $randomChoice = mt_rand (1,2);
           switch ($randomChoice) {
@@ -527,7 +446,6 @@ class chordGenerator {
      }
      
      
-     
      /*
       * Gets serial index of a note
       *
@@ -539,6 +457,7 @@ class chordGenerator {
           $noteIndex = array_search ($note, $this->chordCatalog->serialScale);
           return $noteIndex;
      }
+
      
     /*
      * Makes sure serial index is between 1 and 12
@@ -554,23 +473,6 @@ class chordGenerator {
           if ($serialIndex > 12) {
                $serialIndex -= 12;
           }
-          
-          /*
-          
-          $serialIndex += ($serialIndex <= 0 ? 12 : 0);
-          $serialIndex -= ($serialIndex > 12 ? 12 : 0);
-          
-              
-          if ($a == 5) {
-               print "martin";
-          } else {
-               print "patrick";
-          }
-          
-          print ($a == 5 ? "martin" : "patrick");
-          
-          */
-          
           
           return $serialIndex;
      }

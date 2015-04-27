@@ -129,106 +129,114 @@ class chordCatalog {
         
         
         
+        $this->tonalityIndex = array (
         
-        
-        $this->FIndexMajor = array(
-            'I' => 'F',
-            'ii' => 'g',
-            'iii' => 'a',
-            'IV' => 'Bb',
-            'V' => 'C',
-            'vi' => 'd',
-            'viidim' => 'edim',
-            
+                'FIndexMajor' => array(
+                    'I'      => 'F',
+                    'ii'     => 'g',
+                    'iii'    => 'a',
+                    'IV'     => 'Bb',
+                    'V'      => 'C',
+                    'vi'     => 'd',
+                    'viidim' => 'edim',       
+                ),
+                
+                'GIndexMajor' => array(
+                    'I'      => 'G',
+                    'ii'     => 'a',
+                    'iii'    => 'b',
+                    'IV'     => 'C',
+                    'V'      => 'D',
+                    'vi'     => 'e',
+                    'viidim' => 'f#dim6',
+                ),
+                
+                'GIndexMinor' => array(
+                    'i'      => 'G',
+                    'iidim7' => 'adim7',
+                    'III'    => 'Bb',
+                    'iv'     => 'c7',
+                    'V'      => 'D',
+                    'VI'     => 'Eb',
+                    'VII'    => 'f',
+                ),
+                
+                'CIndexMajor' => array(
+                    'I'      => 'C',
+                    'ii'     => 'd7',
+                    'II6'    => 'D6',
+                    'iii'    => 'e',
+                    'III6'   => 'E6',
+                    'IV'     => 'F',
+                    'V'      => 'G',
+                    'vi'     => 'a',
+                    'VI6'    => 'A6',
+                    'bVII'   => 'Bb',
+                    'viidim' => 'bdim',
+                    'VII65'  => 'bhalfdim',
+                ),
+                
+                'AbIndexMajor' => array(
+                    'I'      => 'Ab',
+                    'ii'     => 'bb',
+                    'II6'    => 'Bb6',
+                    'iii'    => 'c',
+                    'III6'   => 'C6',
+                    'IV'     => 'Db',
+                    'V'      => 'Eb',
+                    'vi'     => 'f',
+                    'VI6'    => 'F6',
+                    'bVII'   => 'Gb',
+                    'viidim' => 'gdim6',
+                    'VII65'  => 'ghalfdim',
+                ),
+                
+                
+                'AIndexMinor' => array(
+                    'i'       => 'a',
+                    'I6'      => 'A6',
+                    'iidim7'  => 'bdim7',
+                    'iidim56' => 'bdim56',
+                    'II'      => 'B',
+                    'II6'     => 'B6',
+                    'III'     => 'C',
+                    'iv'      => 'd',
+                    'IV6'     => 'D6',
+                    'v'       => 'e',
+                    'V'       => 'E',
+                    'V65'     => 'E65',
+                    'VI'      => 'F',
+                    'VII'     => 'G',
+                ),
+                
+                'CIndexMinor' => array(
+                    'i'       => 'c',
+                    'I6'      => 'C6',
+                    'iidim7'  => 'ddim7',
+                    'iidim56' => 'ddim56',
+                    'II'      => 'D',
+                    'II6'     => 'D6',
+                    'III'     => 'Eb',
+                    'iv'      => 'f',
+                    'IV6'     => 'D6',
+                    'v'       => 'g',
+                    'V'       => 'G',
+                    'V65'     => 'G65',
+                    'VI'      => 'Ab',
+                    'VII'     => 'Bb',    
+                ),
         );
         
-        $this->GIndexMajor = array(
-            'I' => 'G',
-            'ii' => 'a',
-            'iii' => 'b',
-            'IV' => 'C',
-            'V' => 'D',
-            'vi' => 'e',
-            'viidim' => 'f#dim6',
-        );
         
-        $this->GIndexMinor = array(
-            'i'      => 'G',
-            'iidim7' => 'adim7',
-            'III'    => 'Bb',
-            'iv'     => 'c7',
-            'V'      => 'D',
-            'VI'     => 'Eb',
-            'VII' => 'f',
-        );
+        $this->FIndexMajor = $this->tonalityIndex["FIndexMajor"];
+        $this->GIndexMajor = $this->tonalityIndex["GIndexMajor"];
+        $this->GIndexMinor = $this->tonalityIndex["GIndexMinor"];
+        $this->CIndexMajor = $this->tonalityIndex["CIndexMajor"];
+        $this->CIndexMinor = $this->tonalityIndex["CIndexMinor"];
+        $this->AbIndexMajor = $this->tonalityIndex["AbIndexMajor"];
+        $this->AIndexMinor = $this->tonalityIndex["AIndexMinor"];
+
         
-        
-        $this->CIndexMajor = array(
-            'I'      => 'C',
-            'ii'     => 'd7',
-            'II6'    => 'D6',
-            'iii'    => 'e',
-            'III6'   => 'E6',
-            'IV'     => 'F',
-            'V'      => 'G',
-            'vi'     => 'a',
-            'VI6'    => 'A6',
-            'bVII'   => 'Bb',
-            'viidim' => 'bdim',
-            'VII65'  => 'bhalfdim'
-        );
-        
-         $this->AbIndexMajor = array(
-            'I'      => 'Ab',
-            'ii'     => 'bb',
-            'II6'    => 'Bb6',
-            'iii'    => 'c',
-            'III6'   => 'C6',
-            'IV'     => 'Db',
-            'V'      => 'Eb',
-            'vi'     => 'f',
-            'VI6'    => 'F6',
-            'bVII'   => 'Gb',
-            'viidim' => 'gdim6',
-            'VII65'  => 'ghalfdim',
-        );
-        
-        
-        $this->AIndexMinor = array(
-            'i'       => 'a',
-            'I6'      => 'A6',
-            'iidim7'  => 'bdim7',
-            'iidim56' => 'bdim56',
-            'II'      => 'B',
-            'II6'     => 'B6',
-            'III'     => 'C',
-            'iv'      => 'd',
-            'IV6'     => 'D6',
-            'v'       => 'e',
-            'V'       => 'E',
-            'V65'     => 'E65',
-            'VI'      => 'F',
-            'VII'     => 'G',
-        );
-        
-        $this->CIndexMinor = array(
-            'i'       => 'c',
-            'I6'      => 'C6',
-            'iidim7'  => 'ddim7',
-            'iidim56' => 'ddim56',
-            'II'      => 'D',
-            'II6'     => 'D6',
-            'III'     => 'Eb',
-            'iv'      => 'f',
-            'IV6'     => 'D6',
-            'v'       => 'g',
-            'V'       => 'G',
-            'V65'     => 'G65',
-            'VI'      => 'Ab',
-            'VII'     => 'Bb',
-            
-        );
-    
     # Progressions ending on same degree as start
         $this->progressionListMaj1 = array ("5", "6", "5", "5", "5", "5", "5"); # a "6-5" progression
         $this->progressionListMaj2 = array ("7", "2", "7", "1", "-5"); # a "5-2" progression
@@ -237,6 +245,26 @@ class chordCatalog {
         $this->progressionListMin2 = array ("7", "1", "7", "2", "7"); # 5-2
           
     }
+    
+    
+    /*
+      *Function generates chords from a cypher array
+      *
+      *@param array $cadenceArray Array full of cyphers
+      *@param string $majorMinorDecider Tested for uppercase to decide tonality
+      *@param string $tonalityIndex Key for the Major tonality index array
+      *@param string $tonalityIndexMinor Key for the minor tonality index array
+      *
+      *@return array Array of chords
+      */
+      public function convertCypherIntoChord ($cadenceArray, $majorMinorDecider, $tonalityIndexMajor, $tonalityIndexMinor) {
+      $majorMinor = (ctype_upper ($majorMinorDecider) ? $tonalityIndexMajor : $tonalityIndexMinor);
+      foreach ($cadenceArray as &$cadenceCypher) {
+                $cadenceCypher = $this->tonalityIndex[$majorMinor][$cadenceCypher];
+      }   
+      unset ($cadenceCypher);
+      return $cadenceArray;
+      }
     
     
     /*
