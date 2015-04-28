@@ -91,10 +91,7 @@ class chordGenerator {
                $subMediantCypher = "i";
                $tonicTonality = $firstChord;
                $tonicTonalityIndex = array_search ($tonicTonality, $this->chordCatalog->serialScaleMajor);
-               $dominantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 7));
                $dominantTonality = $this->chordCatalog->serialScaleMajor[($this->serialIndexCorrector (($tonicTonalityIndex + 7)))];
-               $subMediantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 9));
-               $subMediantTonality = $this->chordCatalog->serialScaleMajor[$subMediantTonalityIndex];
           }
           else {
                $startingCypher = 'i';
@@ -104,10 +101,7 @@ class chordGenerator {
                $subMediantCypher = "I";
                $tonicTonality = $firstChord;
                $tonicTonalityIndex = array_search ($tonicTonality, $this->chordCatalog->serialScale);
-               $dominantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 7));
                $dominantTonality = $this->chordCatalog->serialScale[($this->serialIndexCorrector (($tonicTonalityIndex + 7)))];
-               $subMediantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 8));
-               $subMediantTonality = $this->chordCatalog->serialScale[$subMediantTonalityIndex];          
           }
           
           # Initialize an empty array and set the first Chord
