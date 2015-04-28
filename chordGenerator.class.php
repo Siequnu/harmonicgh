@@ -18,15 +18,17 @@ class chordGenerator {
      {
           # Generate form if not submitted
           if (!isSet ($_POST['msg'])) {
-               $html=$this->generateForm('How many verses', 'Which starting chord?', 'msg', 'initialchord', 'Magically Generate Harmony!');
+               $html=$this->generateForm('How many verses', '"C" (major) or "c" (minor)?', 'msg', 'initialchord', 'Generate Music!');
                echo $html;
                return;
           }
         
-          # Validate and assign form data, if nothing was entered in #-of-blocks default is 1
+          # Validate and assign form data, if nothing was entered in #-of-blocks default is 2
+          $radioButtonOption = $_POST['radio'];
+          
           if ($_POST['initialchord'] !== "C") {
-               if ($_POST['initialchord'] !== "c") {
-                    echo "Please enter C or c as starting chord";
+               if ($radioButtonOption == 'harmony') { 
+                    echo "4-part harmony option only works with C at the moment";
                     die;
                }
           }
@@ -34,7 +36,7 @@ class chordGenerator {
           $numberOfBlocks = $_POST['msg'];
           $testBlocks = $numberOfBlocks+1;
           if ($testBlocks == 1) {
-               $numberOfBlocks = 1;
+               $numberOfBlocks = 2;
           }
           $this->initialChord = $_POST['initialchord'];
           
@@ -49,15 +51,23 @@ class chordGenerator {
                     $sequence [] = $finalChord;
                }
           }
-     
-          # Organize array into blocks and produce HTML
-          $html = $this->organizeSequence ($sequence,$numberOfBlocks);
-          echo $html;
           
+          # Sort data according to form selection
+          if (isset($_POST['radio'])) {
+               if ($radioButtonOption == 'chord') {
+                    # Organize array into blocks and produce HTML
+                    $html = $this->organizeSequence ($sequence,$numberOfBlocks);
+                    echo $html;      
+               } else {
+                    # Send to 4 voice Harmony Generator  
+                    include 'harmonyLogic.class.php';
+                    $this->harmonyLogic = new harmonyLogic;
+          
+                    echo $this->harmonyLogic->getHarmony ($sequence);       
+               }
+          }
      }
-    
      
-    
      /*
      * Loop that generates a verse of 32 chords starting with a given initial chord
      * 
@@ -69,8 +79,7 @@ class chordGenerator {
      {
          
           include_once 'chordCatalog.class.php';
-          $chordCatalog = new chordCatalog;
-          $this->chordCatalog = $chordCatalog;     
+          $this->chordCatalog = new chordCatalog;     
           
           # Determine Tonalities       
           # Determine if first chord M or m, convert into cipher 
@@ -81,11 +90,11 @@ class chordGenerator {
                $subMediantKey = 'm';
                $subMediantCypher = "i";
                $tonicTonality = $firstChord;
-               $tonicTonalityIndex = array_search ($tonicTonality, $chordCatalog->serialScaleMajor);
+               $tonicTonalityIndex = array_search ($tonicTonality, $this->chordCatalog->serialScaleMajor);
                $dominantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 7));
-               $dominantTonality = $chordCatalog->serialScaleMajor[($this->serialIndexCorrector (($tonicTonalityIndex + 7)))];
+               $dominantTonality = $this->chordCatalog->serialScaleMajor[($this->serialIndexCorrector (($tonicTonalityIndex + 7)))];
                $subMediantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 9));
-               $subMediantTonality = $chordCatalog->serialScaleMajor[$subMediantTonalityIndex];
+               $subMediantTonality = $this->chordCatalog->serialScaleMajor[$subMediantTonalityIndex];
           }
           else {
                $startingCypher = 'i';
@@ -94,32 +103,24 @@ class chordGenerator {
                $subMediantKey = 'M';
                $subMediantCypher = "I";
                $tonicTonality = $firstChord;
-               $tonicTonalityIndex = array_search ($tonicTonality, $chordCatalog->serialScale);
+               $tonicTonalityIndex = array_search ($tonicTonality, $this->chordCatalog->serialScale);
                $dominantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 7));
-               $dominantTonality = $chordCatalog->serialScale[($this->serialIndexCorrector (($tonicTonalityIndex + 7)))];
+               $dominantTonality = $this->chordCatalog->serialScale[($this->serialIndexCorrector (($tonicTonalityIndex + 7)))];
                $subMediantTonalityIndex = $this->serialIndexCorrector (($tonicTonalityIndex + 8));
-               $subMediantTonality = $chordCatalog->serialScale[$subMediantTonalityIndex];          
+               $subMediantTonality = $this->chordCatalog->serialScale[$subMediantTonalityIndex];          
           }
           
           # Initialize an empty array and set the first Chord
           unset ($this->sequence);
           $this->sequence[] = $firstChord;
 
-          # Get first cadence
-          $firstCadenceArray = $this->cadenceGenerator ($startingCypher);
-          
-          # Convert cyphers into chords
-          $firstCadenceArray = $this->chordCatalog->convertCypherIntoChord ($firstCadenceArray, $startingCypher, 'CIndexMajor', 'CIndexMinor');
+          $firstCadenceArray = $this->generateCadenceWithChords ($firstChord, 'CIndexMajor', 'CIndexMinor');
           
           # Add cadence to sequence
           $this->addArrayToMainSequence ($firstCadenceArray);
         
           # Get dominant Cadence 
-          $dominantCypher = (ctype_upper ($dominantKey) ? 'I' : 'i');
-          $dominantCadenceArray = $this->cadenceGenerator ($dominantCypher);
-          
-          # Convert cyphers into chords
-          $dominantCadenceArray = $this->chordCatalog->convertCypherIntoChord ($dominantCadenceArray, $dominantCypher, 'GIndexMajor', 'GIndexMinor');
+          $dominantCadenceArray = $this->generateCadenceWithChords ($dominantKey, 'GIndexMajor', 'GIndexMinor');
           
           # Add cadence to sequence, cadence comes a 3 part array so add dominant chord before it
           $this->sequence[] = $dominantTonality;
@@ -133,13 +134,9 @@ class chordGenerator {
           # Convert cyphers into chords
           $progressionSequence = $this->chordCatalog->convertCypherIntoChord ($progressionSequence, $startingCypher, 'CIndexMajor', 'CIndexMinor');
           
-          # Generate cadence for the end         
-          $modulationGoal = ((ctype_upper ($modulationGoal)) ? "i" : "I" );
-          $modulationCadence = $this->cadenceGenerator ($modulationGoal);
+          # Generate cadence
+          $modulationCadence = $this->generateCadenceWithChords ($subMediantKey, 'AbIndexMajor', 'AIndexMinor');
           
-          # Convert cyphers into chords
-          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $modulationGoal, 'AbIndexMajor', 'AIndexMinor');
-
           #Merge progression and modulation, and merge this to total sequence
           $indexToInsertCadence = 5; 
           foreach ($modulationCadence as $chord) {
@@ -169,13 +166,8 @@ class chordGenerator {
      
           # Convert cyphers into chords
           $freeSequence = $this->chordCatalog->convertCypherIntoChord ($freeSequence, $startingCypher, 'AIndexMinor', 'AbIndexMajor');
-                    
-          # Generate cadence for the end of this line         
-          $initialIndex = (ctype_upper ($startingKey) ? 'I' : 'i');
-          $modulationCadence = $this->cadenceGenerator ($initialIndex);
           
-          # Convert cyphers into chords
-          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $startingKey, 'CIndexMajor', 'CIndexMinor');
+          $modulationCadence = $this->generateCadenceWithChords ($startingCypher, 'CIndexMajor', 'CIndexMinor');
           
           # Merge cadence starting index 4 of sequence, and merge this to total sequence
           $indexToInsertCadence = 5; 
@@ -209,12 +201,7 @@ class chordGenerator {
           # Convert cyphers into chords
           $freeSequence = $this->chordCatalog->convertCypherIntoChord ($freeSequence, $startingCypher, 'CIndexMajor', 'CIndexMinor');
                     
-          # Generate cadence for the end of this line         
-          $initialIndex = (ctype_upper ($startingCypher) ? 'I' : 'i');
-          $modulationCadence = $this->cadenceGenerator ($initialIndex);
-          
-          # Convert cyphers into chords
-          $modulationCadence = $this->chordCatalog->convertCypherIntoChord ($modulationCadence, $startingKey, 'CIndexMajor', 'CIndexMinor');
+          $modulationCadence = $this->generateCadenceWithChords ($startingCypher, 'CIndexMajor', 'CIndexMinor');
           
           #Merge progression and modulation, and merge this to total sequence
           $indexToInsertCadence = 5; 
@@ -225,8 +212,7 @@ class chordGenerator {
           
           $this->addArrayToMainSequence ($freeSequence);          
                     
-          return $this->sequence;
-          
+          return $this->sequence;       
      }
      
      
@@ -249,15 +235,24 @@ class chordGenerator {
           <form action="' . $_SERVER['REQUEST_URI'] . '" method="post">
             
           ' . $prompt1 . ': <input type="text" name=' . $name1 . ' size="10">
+          <br /><br />
           ' . $prompt2 . ': <input type="text" name=' . $name2 . ' size="10">
+          <br /><br />
+           
+          <input type="radio" name="radio" value="chord">Generate list of chords
+          <br /><br />
+          <input type="radio" name="radio" value="harmony">Generate 4-part harmony
+          <br /><br />
             
-          <input type="submit" value="' . $submitValue . '">
-            
+          <input type="submit" value="' . $submitValue . '">  
+          
           </form>
           
           </body>
             
           </html>';
+          
+          
           return $formhtml;
      }
      
