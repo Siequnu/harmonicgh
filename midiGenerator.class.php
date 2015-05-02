@@ -2,6 +2,15 @@
 
 class midiGenerator {
     
+	private $errorMessage = '';
+
+	
+	public function __construct () {
+		# Do nothing
+	}
+	
+	public function getErrorMessage () {return $this->errorMessage;}
+	
     public function generateMIDIHarmony ($array) {
     
     # Transpose everything up 1 octaves
@@ -50,50 +59,36 @@ $midiTimeStamp Off ch=1 n=$noteInNoteArray v=60";
 $midiTimeStamp Meta TrkEnd
 TrkEnd";
 	
-    $file = $this->createFileStructure();
+    # Determine the file name or end
+	if (!$file = $this->createFileName ()) {return false;}
 	
     include './lib/midi/midi.class.php';
     $midi = new Midi();
-	$midi->importTxt($html);
-	$midi->saveMidFile($file);
-    
-    echo "File generated";
-    }
+	$midi->importTxt ($html);
+	$midi->saveMidFile ($file);
+	
+	# Signal success
+    return true;
+	}
 
 	
-	private function createFileStructure () {
-		# This is 3rd party code from the MIDI library by Valentino
-		# TODO replace with my own routine
-		session_start();
-		$save_dir = 'tmp/sess_'.session_id().'/';
+	private function createFileName () {
 		
-		//clean up, remove files belonging to expired session
-		$sessions = array();
-		$handle = opendir (session_save_path());
-		while (false !== ($file = readdir ($handle)))
-			if ($file!='.' && $file!='..') $sessions[] = $file;
-		closedir($handle);
-		$handle = opendir('tmp/');
-		while (false !== ($dir = readdir ($handle)))
-			if (is_dir($dir) && $dir!='.' && $dir!='..' && !in_array($dir,$sessions)) rm("tmp/$dir/");
-		closedir($handle);
-		
-		// removes non-empty dir
-		function rm($dir){
-			$handle = opendir($dir);
-			while (false !== ($file = readdir ($handle)))
-				if ($file!='.' && $file!='..') unlink("$dir/$file");
-			closedir($handle);
-			rmdir($dir);
+		# Check if directory is writable
+		$directory  = dirname ($_SERVER['SCRIPT_FILENAME']) . '/output/';
+		if (!is_writable ($directory)) {
+			$this->errorMessage = 'Could not write to output directory.';
+			return false;
 		}
 		
-		if (!is_dir('tmp')) mkdir('tmp');
-		if (!is_dir($save_dir)) mkdir($save_dir);	
-		srand((double)microtime()*1000000);
-		$file = $save_dir.rand().'.mid';
-		return $file;
+		# Create a unique filename
+		$originalUmask = umask (0000);
+		$file = tempnam ($directory, 'midi');
+		umask ($originalUmask);
+		rename ($file, $file . '.midi');
+		chmod ($file . '.midi', 0770);
+		return $file . '.midi';
 	}
-	
 	
 }
 

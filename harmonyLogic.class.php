@@ -36,7 +36,15 @@ class harmonyLogic {
         # Send array to MIDI Generator
         include 'midiGenerator.class.php';
         $this->midiGenerator = new midiGenerator;
-        $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
+        $result = $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
+        
+        # Deal with result messages
+        if (!$result) {
+            echo "\n<p>The MIDI file could not be created, due to the following error: <pre>".htmlspecialchars($this->midiGenerator->getErrorMessage())."</pre></p>";
+            return false;
+        } 
+        
+        echo "\n<p>The MIDI file has been generated</p>";
         
     }
        
