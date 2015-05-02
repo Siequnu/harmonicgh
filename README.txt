@@ -1,4 +1,4 @@
-HarmonicGH generates harmony in a neo-baroque style.
+HarmonicGH generates harmony in a neo-baroque style. This is my first project using PHP and Git.
 
 Based on a seed chord a 32-chord harmonic sequence is generated with modulations (dominant, sub-mediant) and progressions.
 
@@ -16,8 +16,11 @@ harmonyCatalog.class.php: Stores data regarding 4-part harmonic structure of cho
 
 harmonyLogic.class.php: Contains functions to generate smart 4-part harmony.
 
+midiGenerator.class.php: Contains functions to generate a MIDI file from an array of chords
+
+lib/midi/midi.class.php: 3rd party class containing MIDI functions.
+
 
 # Current issues: 
-	Rules to be added to harmony generation to avoid parallel 5ths and 8ths. 
+	Rules to be added to harmony generation to improve voice leading	
 	Modulation support to be extended to all tonalities.
-	MIDI generation to be added.
