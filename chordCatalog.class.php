@@ -227,16 +227,6 @@ class chordCatalog {
                 ),
         );
         
-        
-        $this->FIndexMajor = $this->tonalityIndex["FIndexMajor"];
-        $this->GIndexMajor = $this->tonalityIndex["GIndexMajor"];
-        $this->GIndexMinor = $this->tonalityIndex["GIndexMinor"];
-        $this->CIndexMajor = $this->tonalityIndex["CIndexMajor"];
-        $this->CIndexMinor = $this->tonalityIndex["CIndexMinor"];
-        $this->AbIndexMajor = $this->tonalityIndex["AbIndexMajor"];
-        $this->AIndexMinor = $this->tonalityIndex["AIndexMinor"];
-
-        
     # Progressions ending on same degree as start
         $this->progressionListMaj1 = array ("5", "6", "5", "5", "5", "5", "5"); # a "6-5" progression
         $this->progressionListMaj2 = array ("7", "2", "7", "1", "-5"); # a "5-2" progression
