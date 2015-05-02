@@ -30,9 +30,14 @@ class harmonyLogic {
         }
         
         # Make result array readable by Human
-        $html = $this->createResultHTML ($this->sequenceOfHarmony);
+        #$html = $this->createResultHTML ($this->sequenceOfHarmony);
+        #return $html;
         
-        return $html;
+        # Send array to MIDI Generator
+        include 'midiGenerator.class.php';
+        $this->midiGenerator = new midiGenerator;
+        $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
+        
     }
        
     /*
