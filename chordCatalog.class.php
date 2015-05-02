@@ -26,52 +26,52 @@ class chordCatalog {
        
         # Creates a 12 tone MAJOR cypher scale
         $this->cypherScale = array(
-            '1' => 'I',
-            '2' => 'VI6',
-            '3' => 'ii',
-            '4' => 'VII65',
-            '5' => 'iii',
-            '6' => 'IV',
-            '7' => 'II6',
-            '8' => 'V',
-            '9' => 'III6',
-            '10' => 'vi',
-            '11' => 'bVII',
-            '12' => 'viidim',
+            '1'   => 'I',
+            '2'   => 'VI6',
+            '3'   => 'ii',
+            '4'   => 'VII65',
+            '5'   => 'iii',
+            '6'   => 'IV',
+            '7'   => 'II6',
+            '8'   => 'V',
+            '9'   => 'III6',
+            '10'  => 'vi',
+            '11'  => 'bVII',
+            '12'  => 'viidim',
         );
         
         
         
         # Creates a MINOR cypher progression matrix
         $this->cypherMatrixMinor = array(
-            'i' => array ('V', 'VI', 'iv', 'iidim56', 'I6'),
-            'I6' => array ('iv', 'II6'),
-            'iidim56' => 'V',
-            'II' => 'v',
-            'II6' => 'v',
-            'III' => array ('i', 'V', 'iv'),
-            'iv' => array ('V', 'i', 'iidim56', 'III'),
-            'IV6' => 'VII',
-            'v' => array ('III', 'V'),
-            'V'=> 'i',
-            'V65' => 'i',
-            'VI' => array ('III', 'VII', 'iv'),
-            'VII' => 'V',   
+            'i'         => array ('V', 'VI', 'iv', 'iidim56', 'I6'),
+            'I6'        => array ('iv', 'II6'),
+            'iidim56'   => 'V',
+            'II'        => 'v',
+            'II6'       => 'v',
+            'III'       => array ('i', 'V', 'iv'),
+            'iv'        => array ('V', 'i', 'iidim56', 'III'),
+            'IV6'       => 'VII',
+            'v'         => array ('III', 'V'),
+            'V'         => 'i',
+            'V65'       => 'i',
+            'VI'        => array ('III', 'VII', 'iv'),
+            'VII'       => 'V',   
         );
 
         
         
          # Creates a 12 tone MINOR cypher scale
         $this->cypherScaleMinor = array(
-            '1' => 'i',
-            '2' => 'V65',
-            '3' => 'iidim7',
-            '4' => 'III', 
-            '5' => 'I6', # Doesn't exist in minor scale
-            '6' => 'iv',
-            '7' => 'II6', # Another first inversion to cover exception
-            '8' => 'V',
-            '9' => 'VI',
+            '1'  => 'i',
+            '2'  => 'V65',
+            '3'  => 'iidim7',
+            '4'  => 'III', 
+            '5'  => 'I6', # Doesn't exist in minor scale
+            '6'  => 'iv',
+            '7'  => 'II6', # Another first inversion to cover exception
+            '8'  => 'V',
+            '9'  => 'VI',
             '10' => 'IV6',
             '11' => 'VII',
             '12' => 'V65',
@@ -79,51 +79,51 @@ class chordCatalog {
         
         # Creates a chord progression matrix
         $this->fullChordMatrix = array(
-            'c' => array('g6', 'am', 'dmaj7', 'dm'),
-            'dm' => array('emaj7', 'g', 'g6', 'amaj7'),
-            'dmaj7' => array('g', 'g6'),
-            'em' => array('c', 'emaj7'),
-            'emaj7' => 'am',
-            'g' => array('g7', 'c', 'dmaj7', 'em'),
-            'g6' => array('dmaj7', 'amaj7'),
-            'g7' => 'c',
-            'am' => array('dm', 'bmaj7'),
-            'amaj7' => array('dm', 'bb'),
-            'bb' => 'g6',
-            'bmaj7' => 'emaj7', 
+            'c'         => array('g6', 'am', 'dmaj7', 'dm'),
+            'dm'        => array('emaj7', 'g', 'g6', 'amaj7'),
+            'dmaj7'     => array('g', 'g6'),
+            'em'        => array('c', 'emaj7'),
+            'emaj7'     => 'am',
+            'g'         => array('g7', 'c', 'dmaj7', 'em'),
+            'g6'        => array('dmaj7', 'amaj7'),
+            'g7'        => 'c',
+            'am'        => array('dm', 'bmaj7'),
+            'amaj7'     => array('dm', 'bb'),
+            'bb'        => 'g6',
+            'bmaj7'     => 'emaj7', 
         );
         
         # Creates a 12 tone scale array
         $this->serialScale = array(
-            '1' => 'c',
-            '2' => 'c#',
-            '3' => 'd',
-            '4' => 'd#',
-            '5' => 'e',
-            '6' => 'f',
-            '7' => 'f#',
-            '8' => 'g',
-            '9' => 'g#',
-            '10' => 'a',
-            '11' => 'a#',
-            '12' => 'b',
+            '1'         => 'c',
+            '2'         => 'c#',
+            '3'         => 'd',
+            '4'         => 'd#',
+            '5'         => 'e',
+            '6'         => 'f',
+            '7'         => 'f#',
+            '8'         => 'g',
+            '9'         => 'g#',
+            '10'        => 'a',
+            '11'        => 'a#',
+            '12'        => 'b',
             
         );
         
         # Creates a 12 tone scale array in MAJOR
         $this->serialScaleMajor = array(
-            '1' => 'C',
-            '2' => 'C#',
-            '3' => 'D',
-            '4' => 'D#',
-            '5' => 'E',
-            '6' => 'F',
-            '7' => 'F#',
-            '8' => 'G',
-            '9' => 'G#',
-            '10' => 'A',
-            '11' => 'A#',
-            '12' => 'B',
+            '1'         => 'C',
+            '2'         => 'C#',
+            '3'         => 'D',
+            '4'         => 'D#',
+            '5'         => 'E',
+            '6'         => 'F',
+            '7'         => 'F#',
+            '8'         => 'G',
+            '9'         => 'G#',
+            '10'        => 'A',
+            '11'        => 'A#',
+            '12'        => 'B',
             
         );
         
