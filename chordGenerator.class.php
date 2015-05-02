@@ -292,14 +292,16 @@ class chordGenerator {
       *    @return array Array with 0, 1, 2 with ii V I (for example)
       */    
      public function cadenceGenerator ($initialIndex) {
-          # Determine if Major or Minor cadence
-          if (ctype_upper ($initialIndex)) {   # 0 = minor initialCypher, 1 = Major initial cypher
-               # Pick random cadence style and generate array
-               $randomChoice = mt_rand (1,3);
+          
+          # Determine if Major or Minor cadence, pick the cadence style
+          $randomChoice = (ctype_upper ($initialIndex) ? mt_rand (1,3) : mt_rand (1,2));
+          
+          # Generate array
+          if (ctype_upper ($initialIndex)) { 
                $resultArray = $this->cadenceArrayGeneratorMajor ($initialIndex, $randomChoice);
           } else {
-               $randomChoice = mt_rand (1,2);
-               $resultArray = $this->cadenceArrayGeneratorMinor ($initialIndex, $randomChoice);               }
+               $resultArray = $this->cadenceArrayGeneratorMinor ($initialIndex, $randomChoice);
+          }
           return $resultArray;     
      }
      
