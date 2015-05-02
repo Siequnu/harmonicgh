@@ -22,13 +22,14 @@ class midiGenerator {
 
         
     # Add Midi Header
-    $html = 'MFile 0 1 1000
-MTrk
-0 TimeSig 4/4 24 8
-0 Tempo 750000
-0 PrCh ch=1 p=41'; 
+    $midiInstructions = array ();
+    $midiInstructions[] = 'MFile 0 1 1000';
+	$midiInstructions[] = 'MTrk';
+	$midiInstructions[] = '0 TimeSig 4/4 24 8';
+	$midiInstructions[] = '0 Tempo 750000';
+	$midiInstructions[] = '0 PrCh ch=1 p=41';
     
-    # Add main track with chords      
+    # Add main track with chords
     $midiTimeStamp = 1000;
     
     foreach ($array as &$chord) { // Open each chord array which contains 4 notes
@@ -39,8 +40,7 @@ MTrk
         
         # Print On message for 4 notes 
         foreach ($noteArray as $noteInNoteArray) {
-            $html .= "
-$midiTimeStamp On ch=1 n=$noteInNoteArray v=60";
+            $midiInstructions[] = "$midiTimeStamp On ch=1 n=$noteInNoteArray v=60";
         }
         
         # Advance timestamp         
@@ -48,23 +48,23 @@ $midiTimeStamp On ch=1 n=$noteInNoteArray v=60";
         
         # Print Off message for same notes, time stamp ready for next set of On.        
         foreach ($noteArray as $noteInNoteArray) {
-            $html .= "
-$midiTimeStamp Off ch=1 n=$noteInNoteArray v=60";   
+            $midiInstructions[] = "$midiTimeStamp Off ch=1 n=$noteInNoteArray v=60";   
         }
         unset ($noteArray);
     }
     
     # Add Midi Footer
-    $html .= "
-$midiTimeStamp Meta TrkEnd
-TrkEnd";
+    $midiInstructions[] = "$midiTimeStamp Meta TrkEnd";
+	$midiInstructions[] = 'TrkEnd';
+	
+	$midiText = implode ("\n", $midiInstructions);
 	
     # Determine the file name or end
 	if (!$file = $this->createFileName ()) {return false;}
 	
     include './lib/midi/midi.class.php';
     $midi = new Midi();
-	$midi->importTxt ($html);
+	$midi->importTxt ($midiText);
 	$midi->saveMidFile ($file);
 	
 	# Signal success
