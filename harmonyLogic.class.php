@@ -36,15 +36,41 @@ class harmonyLogic {
         # Send array to MIDI Generator
         include 'midiGenerator.class.php';
         $this->midiGenerator = new midiGenerator;
-        $result = $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
+        $file = $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
         
         # Deal with result messages
-        if (!$result) {
+        if (!$file) {
             echo "\n<p>The MIDI file could not be created, due to the following error: <pre>".htmlspecialchars($this->midiGenerator->getErrorMessage())."</pre></p>";
             return false;
         } 
         
-        echo "\n<p>The MIDI file has been generated</p>";
+        $cmd = "/usr/local/bin/timidity -Ow \"{$file}\"";   
+        #echo $cmd;
+        exec ($cmd, $output, $exitStatus);
+        if ($exitStatus != 0) {
+            #echo nl2br (htmlspecialchars (implode ("\n", $output)));
+            echo "\n<p>The WAV file could not be created, due to an error with the converter</p>";  
+            return false;
+        }
+        
+        $location = '/harmonic/output/' . pathinfo ($file, PATHINFO_FILENAME) . '.wav';
+        $html = "<audio src=\"{$location}\" controls=\"controls\">
+                Your browser does not support the AUDIO element
+                </audio>";
+                
+        echo $html;
+        
+        /*
+         *header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename='.basename($file));
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($file));
+        readfile($file);
+        exit;
+        */
         
     }
        

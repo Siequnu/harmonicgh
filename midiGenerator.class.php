@@ -27,7 +27,7 @@ class midiGenerator {
 	$midiInstructions[] = 'MTrk';
 	$midiInstructions[] = '0 TimeSig 4/4 24 8';
 	$midiInstructions[] = '0 Tempo 750000';
-	$midiInstructions[] = '0 PrCh ch=1 p=41';
+	$midiInstructions[] = '0 PrCh ch=1 p=1';
     
     # Add main track with chords
     $midiTimeStamp = 1000;
@@ -68,7 +68,7 @@ class midiGenerator {
 	$midi->saveMidFile ($file);
 	
 	# Signal success
-    return true;
+    return $file;
 	}
 
 	

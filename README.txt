@@ -21,7 +21,8 @@ midiGenerator.class.php: Contains functions to generate a MIDI file from an arra
 lib/midi/midi.class.php: 3rd party class containing MIDI functions.
 
 # Deployment notes:
-	MIDI Generation requires a tmp folder in the main directory which is writeable by the webserver process.
+	MIDI generation requires a output folder in the main directory which is writeable by the webserver process.
+	MIDI generation requires timidity (eg. $ brew install timidity).
 
 # Current issue:
 	Rules to be added to harmony generation to improve voice leading	
