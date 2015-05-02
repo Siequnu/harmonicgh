@@ -11,9 +11,9 @@ echo "</pre>";
 #phpinfo();
 */
 
-include 'chordGenerator.class.php';
-$chordGenerator1 = new chordGenerator;
-$chordGenerator1->main ();
+require_once './classes/chordGenerator.class.php';
+$chordGenerator = new chordGenerator;
+$chordGenerator->main ();
 
 
 ?>

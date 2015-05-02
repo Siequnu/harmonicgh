@@ -3,7 +3,7 @@
 class harmonyLogic {
 
     public function getHarmony ($sequenceOfChords) { // Array ( [0] => C [1] => F [2] => G [3] => C .....)
-        include_once 'harmonyCatalog.class.php';
+        require_once './classes/harmonyCatalog.class.php';
         $this->harmonyCatalog = new harmonyCatalog;
         $this->sequenceOfChords = $sequenceOfChords;  
         
@@ -34,7 +34,7 @@ class harmonyLogic {
         #return $html;
         
         # Send array to MIDI Generator
-        include 'midiGenerator.class.php';
+        require_once './classes/midiGenerator.class.php';
         $this->midiGenerator = new midiGenerator;
         $file = $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
         

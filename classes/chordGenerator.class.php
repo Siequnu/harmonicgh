@@ -74,7 +74,7 @@ class chordGenerator {
      */
      public function generateBaroqueChords ($firstChord)
      {
-          include_once 'chordCatalog.class.php';
+          require_once './classes/chordCatalog.class.php';
           $this->chordCatalog = new chordCatalog;     
           
           # Determine Tonalities       
@@ -472,7 +472,7 @@ class chordGenerator {
                     echo $html;      
                } else {
                     # Send to 4 voice Harmony Generator  
-                    include 'harmonyLogic.class.php';
+                    require_once './classes/harmonyLogic.class.php';
                     $this->harmonyLogic = new harmonyLogic;
           
                     $this->harmonyLogic->getHarmony ($sequence);       
