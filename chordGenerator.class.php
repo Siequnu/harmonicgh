@@ -11,11 +11,14 @@ class chordGenerator {
           # Do nothing   
      }
     
+    
     /*
      * Main entry into program 
      */
      public function main()
      {
+          # Generate form and assign form data
+          
           # Generate form if not submitted
           if (!isSet ($_POST['msg'])) {
                $html=$this->generateForm('How many verses', '"C" (major) or "c" (minor)?', 'msg', 'initialchord', 'Generate Music!');
@@ -23,50 +26,44 @@ class chordGenerator {
                return;
           }
         
-          # Validate and assign form data, if nothing was entered in #-of-blocks default is 2
-          $radioButtonOption = $_POST['radio'];
+          # Validate and assign form data
+          $this->radioButtonOption = $_POST['radio'];
           
           if ($_POST['initialchord'] !== "C") {
-               if ($radioButtonOption == 'harmony') { 
-                    echo "4-part harmony option only works with C at the moment";
-                    die;
+               if ($_POST['initialchord'] !== "c") {
+                    if ($radioButtonOption == 'harmony') { 
+                         echo "4-part harmony option only works with C or c at the moment";
+                         die;
+                    }
                }
-          }
+          };
           
-          $numberOfBlocks = $_POST['msg'];
-          $testBlocks = $numberOfBlocks+1;
+          # If nothing was entered in number of blocks, assign 2
+          $this->numberOfBlocks = $_POST['msg'];
+          $testBlocks = $this->numberOfBlocks+1;
           if ($testBlocks == 1) {
-               $numberOfBlocks = 2;
+               $this->numberOfBlocks = 2;
           }
           $this->initialChord = $_POST['initialchord'];
           
           # Calculate total number of chords needed
-          $totalchords = $numberOfBlocks * $this->chordsPerBlock;
+          $totalchords = $this->numberOfBlocks * $this->chordsPerBlock;
+          
+          # Initialize array
           $sequence = array ();
           
-          # Generate sequence of chords
-          for ($cycleNumbers = 0; $cycleNumbers < $numberOfBlocks; $cycleNumbers++) {
-               $verseBlock = $this->generateChords ($this->initialChord);
+          # Generate sequence of baroque style chords
+          for ($cycleNumbers = 0; $cycleNumbers < $this->numberOfBlocks; $cycleNumbers++) {
+               $verseBlock = $this->generateBaroqueChords ($this->initialChord);
                foreach ($verseBlock as $finalChord) {
                     $sequence [] = $finalChord;
                }
           }
           
           # Sort data according to form selection
-          if (isset($_POST['radio'])) {
-               if ($radioButtonOption == 'chord') {
-                    # Organize array into blocks and produce HTML
-                    $html = $this->organizeSequence ($sequence,$numberOfBlocks);
-                    echo $html;      
-               } else {
-                    # Send to 4 voice Harmony Generator  
-                    include 'harmonyLogic.class.php';
-                    $this->harmonyLogic = new harmonyLogic;
-          
-                    echo $this->harmonyLogic->getHarmony ($sequence);       
-               }
-          }
+          $this->formatSequence ($sequence);
      }
+     
      
      /*
      * Loop that generates a verse of 32 chords starting with a given initial chord
@@ -75,9 +72,8 @@ class chordGenerator {
      * 
      * @return string String of logically generated chords 
      */
-     public function generateChords ($firstChord)
+     public function generateBaroqueChords ($firstChord)
      {
-         
           include_once 'chordCatalog.class.php';
           $this->chordCatalog = new chordCatalog;     
           
@@ -141,22 +137,7 @@ class chordGenerator {
           $this->addArrayToMainSequence ($progressionSequence);
           
           # Next line is freely generated in submediant
-          $freeSequence [] = $subMediantCypher;
-          
-          # Get a free choice for 4 of the next line of chords
-          $generatedCypher = $subMediantCypher;
-          if (ctype_upper ($subMediantCypher)) {
-               for ($chordsGenerated = 0; $chordsGenerated <=3; $chordsGenerated++) {
-                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "M");
-                    $freeSequence [] = $generatedCypher;
-               }  
-          }
-          else {
-               for ($chordsGenerated = 0; $chordsGenerated <=3; $chordsGenerated++) {
-                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "m");
-                    $freeSequence [] = $generatedCypher;
-               }    
-          }
+          $freeSequence = $this->getFreeSequence ($subMediantCypher, '4', $subMediantCypher);
      
           # Convert cyphers into chords
           $freeSequence = $this->chordCatalog->convertCypherIntoChord ($freeSequence, $startingCypher, 'AIndexMinor', 'AbIndexMajor');
@@ -172,26 +153,11 @@ class chordGenerator {
           
           $this->addArrayToMainSequence ($freeSequence);
           
-          unset ($freeSequence); 
-          
-          
-          # Last line is freely generated in Tonic then cadence at end
-          $freeSequence [] = $startingCypher;
+          unset ($freeSequence);           
           
           # Get a random chord for 4 of the next chords
-          $generatedCypher = $startingCypher;
-          if (ctype_upper ($startingCypher)) {
-               for ($chordsGenerated = 0; $chordsGenerated <=3; $chordsGenerated++) {
-                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "M");
-                    $freeSequence [] = $generatedCypher;
-               }  
-          }
-          else {
-               for ($chordsGenerated = 0; $chordsGenerated <=3; $chordsGenerated++) {
-                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "m");
-                    $freeSequence [] = $generatedCypher;
-               }    
-          }
+          $freeSequence = $this->getFreeSequence ($startingCypher, '4', $startingCypher);
+ 
           # Convert cyphers into chords
           $freeSequence = $this->chordCatalog->convertCypherIntoChord ($freeSequence, $startingCypher, 'CIndexMajor', 'CIndexMinor');
                     
@@ -379,12 +345,10 @@ class chordGenerator {
           # Generate progression sequence
           if (ctype_upper ($startingCypher)) { 
                $progressionSequence = $this->progressionGeneratorMajor ($startingCypher);
-          } else
-          {
+          } else {
                $progressionSequence = $this->progressionGeneratorMinor ($startingCypher);
           }
-          
-          
+             
           # Merge arrays and convert to Chords
           foreach ($progressionSequence as $cypher) {
                $progressionArray [] = $cypher;
@@ -437,6 +401,32 @@ class chordGenerator {
      }
      
      
+     /* Generates a random sequence starting on a given cypher
+      *
+      * @param str $startingCypher The stem of the random sequence. Will be in the first position. (ie. i or IV)
+      * @param int $numberOfRandomChords How many random chords in string (excluding stem chord)
+      * @param str $majMinIndicator checked with ctype_upper to determine major or minor
+      *
+      * @return array Array with random sequence
+      */
+     public function getFreeSequence ($startingCypher, $numberOfRandomChords, $majMinIndicator) {
+          $generatedCypher = $startingCypher;
+          $freeSequence [] = $startingCypher;
+          if (ctype_upper ($majMinIndicator)) {
+               for ($chordsGenerated = 1; $chordsGenerated <=$numberOfRandomChords; $chordsGenerated++) {
+                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "M");
+                    $freeSequence [] = $generatedCypher;
+               }  
+          } else {
+               for ($chordsGenerated = 1; $chordsGenerated <=$numberOfRandomChords; $chordsGenerated++) {
+                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "m");
+                    $freeSequence [] = $generatedCypher;
+               }    
+          }
+          return $freeSequence;
+     }
+     
+     
      /*
       * Gets serial index of a note
       *
@@ -466,6 +456,28 @@ class chordGenerator {
           }
           
           return $serialIndex;
+     }
+    
+    
+    /*
+      * Takes the sequence of chords and sends it somewhere for processing
+      *
+      * @param array $sequence Sequence to be processed
+      */
+     public function formatSequence ($sequence) {
+          if (isset($_POST['radio'])) {
+               if ($this->radioButtonOption == 'chord') {
+                    # Organize array into blocks and produce HTML
+                    $html = $this->organizeSequence ($sequence,$this->numberOfBlocks);
+                    echo $html;      
+               } else {
+                    # Send to 4 voice Harmony Generator  
+                    include 'harmonyLogic.class.php';
+                    $this->harmonyLogic = new harmonyLogic;
+          
+                    $this->harmonyLogic->getHarmony ($sequence);       
+               }
+          }     
      }
     
     

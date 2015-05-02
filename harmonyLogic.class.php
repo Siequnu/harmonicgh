@@ -2,16 +2,10 @@
 
 class harmonyLogic {
 
-    public function getHarmony ($sequenceOfChords) { # Array ( [0] => C [1] => F [2] => G [3] => C .....)
+    public function getHarmony ($sequenceOfChords) { // Array ( [0] => C [1] => F [2] => G [3] => C .....)
         include_once 'harmonyCatalog.class.php';
         $this->harmonyCatalog = new harmonyCatalog;
-        $this->sequenceOfChords = $sequenceOfChords;
-        
-        # Set a simulated array for testing purposes
-        #$this->sequenceOfChords = array ( 'C', 'F', 'G', 'C' );
-        #$this->sequenceOfChords = array ('C', 'F', 'bdim', 'C', 'G', 'C', 'f#dim6', 'G', 'C', 'G', 'a', 'e', 'F', 'bdim7', 'E', 'a', 
-        #'a', 'd', 'E', 'a', 'd', 'F', 'G', 'C', 
-        #'C', 'd7', 'G', 'E6', 'a', 'F', 'G', 'C', );  
+        $this->sequenceOfChords = $sequenceOfChords;  
         
         # Insert first chord positions into harmony array
         $this->sequenceOfHarmony[0] = ($this->getPositionOfFirstChord ($this->sequenceOfChords[0]));  
@@ -84,18 +78,24 @@ class harmonyLogic {
         }
         # Put already chosen Bass voice into array
         $matchArray[0] = $closestMatchToBass;         
-        
-        # Make sure all notes of chord are included
-        # go through array, if a repeated note is found, keep going down till an empty slot is found
-        while (count(array_unique($matchArray))<count($matchArray)) {
-            // Array has duplicates
-            
-            # Takes an array and returns an array of duplicate items
-            $arrayWithDuplicates = array_unique( array_diff_assoc( $matchArray, array_unique( $matchArray ) ) );
+         
+        # Check if array has duplicate items
+        while (count(array_unique($matchArray))<count($matchArray)) // Array has duplicates
+        {
+            # Return an array of duplicate items
+            $arrayWithDuplicates = array_unique (array_diff_assoc ($matchArray, array_unique ($matchArray) ) );
             foreach ($arrayWithDuplicates as $key => $index) {
                 # Action to do with duplicate keys
-                $matchArray[$key] = (($matchArray[$key]) -12);
+                # Get closest match from possibility soup for duplicate key
+                $matchArray[$key] = $this->getClosestMatch ($possibilitySoup, $key);
             }  
+        }
+        # Array ( [0] => 14 [1] => 29 [2] => 33 [3] => 36 )
+        # Check that at least one of each chord note is in the array
+        foreach ($possibleKeys as $note) {
+            foreach ($note as $keys) {
+            
+            }
         }
         
         # Sort array in ascending order
