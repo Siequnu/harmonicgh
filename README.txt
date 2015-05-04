@@ -3,9 +3,9 @@ HarmonicGH generates harmony in a neo-baroque style. This is my first project us
 Based on a seed chord a 32-chord harmonic sequence is generated with modulations (dominant, sub-mediant) and progressions. An audio file with the created harmony can be played in the browser.
 
 index.php: Main form.
-	Number of verses: Insert wanted number of 32-chord verses here. Defaults to 2.
-	Chord prompt: Insert starting chord here. This will be the root of the generated harmony. Currently only working with ‘C’ or ‘c’ (Major or minor).
-	Radio-buttons: Choose to generate a list of chords or to generate and play 4-part harmony.
+	Number of verses: Insert wanted number of 32-chord verses here.
+	Chord prompt: Insert starting chord here. This will be the root of the generated harmony. Currently only works with C for major or c for minor.
+	Radio-buttons: Choose to generate a list of chords or to generate and play 4-part harmony in browser.
 
 
 /classes/
@@ -21,9 +21,11 @@ midiGenerator.class.php: Contains functions to generate a MIDI file from an arra
 
 lib/midi/midi.class.php: 3rd party class containing MIDI functions.
 
+content/style.css: CSS sheet
+
 # Deployment notes:
-	MIDI generation requires a output folder in the main directory which is writeable by the webserver process.
-	WAV conversion requires timidity (eg. $ brew install timidity).
+	MIDI generation requires an output folder in the main directory which is writeable by the webserver process.
+	MIDI to WAV conversion requires timidity (eg. $ brew install timidity).
 
 # Current issue:
 	Rules to be added to harmony generation to improve voice leading	
