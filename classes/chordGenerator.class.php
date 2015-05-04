@@ -3,48 +3,27 @@
 class chordGenerator {
     
      # Class defaults
-     private $initialChord = 'C';
      private $chordsPerBlock = 32;
+     private $numberOfBlocks = 4;
+     private $initialChord = 'C';
      
      public function __construct()
      {
           # Do nothing   
      }
-    
+     
     
     /*
      * Main entry into program 
      */
      public function main()
-     {
-          # Generate form and assign form data
+     {          
           
-          # Generate form if not submitted
-          if (!isSet ($_POST['msg'])) {
-               $html=$this->generateForm('How many verses', '"C" (major) or "c" (minor)?', 'msg', 'initialchord', 'Generate Music!');
-               echo $html;
-               return;
-          }
-        
-          # Validate and assign form data
-          $this->radioButtonOption = $_POST['radio'];
+          # Generate form and assign data
+          echo $this->generateForm();
           
-          if ($_POST['initialchord'] !== "C") {
-               if ($_POST['initialchord'] !== "c") {
-                    if ($radioButtonOption == 'harmony') { 
-                         echo "4-part harmony option only works with C or c at the moment";
-                         die;
-                    }
-               }
-          };
-          
-          # If nothing was entered in number of blocks, assign 2
-          $this->numberOfBlocks = $_POST['msg'];
-          $testBlocks = $this->numberOfBlocks+1;
-          if ($testBlocks == 1) {
-               $this->numberOfBlocks = 2;
-          }
-          $this->initialChord = $_POST['initialchord'];
+          # Assign form data
+          $this->assignFormData();
           
           # Calculate total number of chords needed
           $totalchords = $this->numberOfBlocks * $this->chordsPerBlock;
@@ -53,15 +32,53 @@ class chordGenerator {
           $sequence = array ();
           
           # Generate sequence of baroque style chords
+          $sequence = $this->chordGenerator($sequence);
+          
+          # Sort data according to form selection
+          $this->formatSequence ($sequence);
+     }
+     
+     
+     /*
+      * Assigns form Data to variables
+      */
+     public function assignFormData () {
+                 
+          # Validate and assign form data
+          if (isSet ($_POST['radio'])) {
+               $this->radioButtonOption = $_POST['radio'];
+               if (htmlspecialchars($_POST['initialChord'] !== "C")) {
+                    if (htmlspecialchars($_POST['initialChord'] !== "c")) {
+                         if ($this->radioButtonOption == 'harmony') { 
+                              echo '4-part harmony option only works with C or c. Please enter one of these options.';
+                              die;
+                         }
+                    }
+               }
+          }
+          
+          if (!isSet ($_POST['initialChord'])) {
+               $this->numberOfBlocks = 2;
+               $this->initialChord = 'C';
+               $this->radioButtonOption = 'harmony';
+          } else {
+               $this->numberOfBlocks = $_POST['numberOfBlocks'];
+               $this->initialChord = htmlspecialchars($_POST['initialChord']);
+          }
+          
+     }
+     
+     /*
+      * Returns an array of generated chords
+      */ 
+     private function chordGenerator ($sequence) {
           for ($cycleNumbers = 0; $cycleNumbers < $this->numberOfBlocks; $cycleNumbers++) {
                $verseBlock = $this->generateBaroqueChords ($this->initialChord);
                foreach ($verseBlock as $finalChord) {
                     $sequence [] = $finalChord;
                }
           }
-          
-          # Sort data according to form selection
-          $this->formatSequence ($sequence);
+          return $sequence;
      }
      
      
@@ -177,7 +194,7 @@ class chordGenerator {
      
      
       /*
-     * Generates a 2 part form
+     * Generates a form for data entry
      *
      * @param str $prompt1 Message prompt
      * @param str $prompt2 Second Prompt
@@ -187,14 +204,25 @@ class chordGenerator {
      *
      * @return string
      */
-     private function generateForm ($prompt1, $prompt2, $name1, $name2, $submitValue) {
+     private function generateForm () {
+          # Set form labels
+          $prompt1 = 'Number of verses';
+          $prompt2 = '"C" (major) or "c" (minor)?';
+          $name1 = 'numberOfBlocks';
+          $name2 = 'initialChord';
+          $submitValue = 'Generate music!';
+                    
+          # Generate HTML
           $formhtml='<html>
-          <head></head>
+          <head>
+          <title>Harmony Generator</title>
+          <link rel="stylesheet" href="./classes/style.css">
+          </head>
           <body>
             
           <form action="' . $_SERVER['REQUEST_URI'] . '" method="post">
             
-          ' . $prompt1 . ': <input type="text" name=' . $name1 . ' size="10">
+          ' . $prompt1 . ': <input type="number" name=' . $name1 . ' size="10">
           <br /><br />
           ' . $prompt2 . ': <input type="text" name=' . $name2 . ' size="10">
           <br /><br />
@@ -211,7 +239,6 @@ class chordGenerator {
           </body>
             
           </html>';
-          
           
           return $formhtml;
      }
@@ -341,7 +368,6 @@ class chordGenerator {
           
           # Set initial index as first chord
           $progressionArray [] = $startingCypher;
-          
           # Generate progression sequence
           if (ctype_upper ($startingCypher)) { 
                $progressionSequence = $this->progressionGeneratorMajor ($startingCypher);
@@ -474,7 +500,6 @@ class chordGenerator {
                     # Send to 4 voice Harmony Generator  
                     require_once './classes/harmonyLogic.class.php';
                     $this->harmonyLogic = new harmonyLogic;
-          
                     $this->harmonyLogic->getHarmony ($sequence);       
                }
           }     
