@@ -62,6 +62,7 @@ class midiGenerator {
 		# Determine the file name or end
 		if (!$file = $this->createFileName ()) {return false;}
 		
+		# Send MIDI to MIDI conversion class
 		require_once './lib/midi/midi.class.php';
 		$midi = new Midi();
 		$midi->importTxt ($midiText);
