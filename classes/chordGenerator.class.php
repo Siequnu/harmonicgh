@@ -65,7 +65,6 @@ class chordGenerator {
                $this->numberOfBlocks = $_POST['numberOfBlocks'];
                $this->initialChord = htmlspecialchars($_POST['initialChord']);
           }
-          
      }
      
      /*
@@ -216,7 +215,7 @@ class chordGenerator {
           $formhtml='<html>
           <head>
           <title>Harmony Generator</title>
-          <link rel="stylesheet" href="./classes/style.css">
+          <link rel="stylesheet" href="./content/style.css">
           </head>
           <body>
             
