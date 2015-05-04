@@ -6,32 +6,13 @@ class harmonyLogic {
         require_once './classes/harmonyCatalog.class.php';
         $this->harmonyCatalog = new harmonyCatalog;
         $this->sequenceOfChords = $sequenceOfChords;  
+        $this->sequenceOfHarmony = array ();
         
-        # Insert first chord positions into harmony array
-        $this->sequenceOfHarmony[0] = ($this->getPositionOfFirstChord ($this->sequenceOfChords[0]));  
-        
-        # Go through array of chords and generate keyboard positions for each chord
-        $numberOfChordsToHarmonize = (count($this->sequenceOfChords)-1);
-        $positionInSequenceOfChords = 1;
-        $positionInSequenceOfHarmony = 0;
-        
-        for ($cycles = 1; $cycles <= $numberOfChordsToHarmonize; $cycles++) {
-            
-            # Generate 4 part position for chord
-            $harmonizedChord = $this->harmonizeNextChord($positionInSequenceOfChords, $positionInSequenceOfHarmony);
-            
-            $positionInSequenceOfHarmony++;
-            $positionInSequenceOfChords++;
-            
-            # Merge to existing array of Harmony
-            foreach ($harmonizedChord as $notePosition) {
-                $this->sequenceOfHarmony[$positionInSequenceOfHarmony][] = $notePosition;    
-            }   
-        }
+        # Get array with all note positions
+        $this->getAllNotePositions ($this->sequenceOfChords);
         
         # Make result array readable by Human
-        #$html = $this->createResultHTML ($this->sequenceOfHarmony);
-        #return $html;
+        #echo $this->createResultHTML ($this->sequenceOfHarmony);
         
         # Send array to MIDI Generator
         require_once './classes/midiGenerator.class.php';
@@ -44,34 +25,40 @@ class harmonyLogic {
             return false;
         } 
         
-        $cmd = "/usr/local/bin/timidity -Ow \"{$file}\"";   
-        #echo $cmd;
-        exec ($cmd, $output, $exitStatus);
-        if ($exitStatus != 0) {
-            #echo nl2br (htmlspecialchars (implode ("\n", $output)));
-            echo "\n<p>The WAV file could not be created, due to an error with the converter</p>";  
-            return false;
-        }
+        # Convert MIDI file to WAV
+        $this->convertMIDIToWAV ($file);
         
+        # Echo HTML5 tag with converted WAV file
         $location = '/harmonic/output/' . pathinfo ($file, PATHINFO_FILENAME) . '.wav';
-        $html = "<audio src=\"{$location}\" controls=\"controls\">
-                Your browser does not support the AUDIO element
-                </audio>";
-                
-        echo $html;
+        echo $this->getAudioHTMLTag ($location);
         
-        /*
-         *header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename='.basename($file));
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($file));
-        readfile($file);
-        exit;
-        */
+    }
+    
+    
+    public function getAllNotePositions ($sequenceOfChords) {
         
+        # Insert first chord positions into harmony array
+        $this->sequenceOfHarmony[0] = $this->getPositionOfFirstChord ($sequenceOfChords[0]);
+        
+        # Go through the array of chords and generate keyboard positions for each chord
+        $numberOfChordsToHarmonize = (count($sequenceOfChords)-1);
+        $chordInSequenceOfChords = 1;
+        $chordInSequenceOfHarmony = 0;
+        
+        for ($cycles = 1; $cycles <= $numberOfChordsToHarmonize; $cycles++) {
+            
+            # Generate 4 part position for chord
+            $harmonizedChord = $this->harmonizeNextChord($chordInSequenceOfChords, $chordInSequenceOfHarmony);
+            
+            $chordInSequenceOfHarmony++;
+            $chordInSequenceOfChords++;
+            
+            # Merge to existing array of Harmony
+            foreach ($harmonizedChord as $notePosition) {
+                $this->sequenceOfHarmony[$chordInSequenceOfHarmony][] = $notePosition;    
+            }           
+        }
+        return true;
     }
        
     /*
@@ -117,7 +104,9 @@ class harmonyLogic {
         }
         # Put already chosen Bass voice into array
         $matchArray[0] = $closestMatchToBass;         
-         
+        
+        # Check if chord is a repeat of last chord. If so, change position
+       
         # Check if array has duplicate items
         while (count(array_unique($matchArray))<count($matchArray)) // Array has duplicates
         {
@@ -131,14 +120,10 @@ class harmonyLogic {
         }
         # Array ( [0] => 14 [1] => 29 [2] => 33 [3] => 36 )
         # Check that at least one of each chord note is in the array
-        foreach ($possibleKeys as $note) {
-            foreach ($note as $keys) {
-            
-            }
-        }
+        
         
         # Sort array in ascending order
-        sort($matchArray);
+        #sort($matchArray);
         
         return $matchArray;
     }
@@ -180,7 +165,7 @@ class harmonyLogic {
         $possibleKeys = $this->findMatchingSoupForChord ($currentChordNotes);
         
         # Place base in second octave
-        $chordPositionArray[0] = $possibleKeys[0][1];  // = $possibleKeys[bassNoteInChord][secondOctave]
+        $chordPositionArray[0] = $possibleKeys[0][1];  // = $possibleKeys[bassNoteInChord][matchingNoteInSecondOctave]
         
         # Place all other notes consecutively on third octave or above
         $octave = 2;
@@ -192,11 +177,7 @@ class harmonyLogic {
             if ($chordPositionArray[$noteInChord] < $lastLocationOnArray) {
                 
                 # Add it up an octave
-                $octave = $octave + 1;
-                $chordPositionArray[$noteInChord] = $possibleKeys[$noteInChord][$octave];
-                
-                # Reset the octave positioning
-                $octave = $octave - 1;
+                $chordPositionArray[$noteInChord] = $possibleKeys[$noteInChord][$octave + 1];
             }
         
             #Update last location
@@ -240,6 +221,28 @@ class harmonyLogic {
         return end($diff_nr);    // returns the last element (with the smallest difference - which results to be the closest)
     }
     
+    
+    /*
+     * Converts a MIDI file to WAV.
+     *
+     * @param str $file Filepath of MIDI file to be converted
+     *
+     * @return bool True if operation succeded, False if error occured.
+     */ 
+    public function convertMIDIToWAV ($file) {
+        # Convert MIDI file to WAV using timidity in shell
+        $cmd = "/usr/local/bin/timidity -Ow \"{$file}\"";   
+        #echo $cmd;
+        exec ($cmd, $output, $exitStatus);
+        if ($exitStatus != 0) {
+            #echo nl2br (htmlspecialchars (implode ("\n", $output)));
+            echo "\n<p>The WAV file could not be created, due to an error with the converter</p>";  
+            return false;
+        }
+        return true;
+    }
+    
+    
     /*
      * Converts note numbers (1,2,3,4) to keyboard numbers readable by human
      *
@@ -263,7 +266,24 @@ class harmonyLogic {
             }
         }
         return $html;       
-    }    
+    }
+    
+    
+    /*
+     * Generate HTML5 audio tag for audio at a given location
+     *
+     * @param str $location Filename (within running directory) of the audiofile
+     *
+     * @return str HTML code
+     */ 
+    public function getAudioHTMLTag ($location) {
+        
+        $html = "<audio src=\"{$location}\" controls=\"controls\">
+                Your browser does not support the AUDIO element
+                </audio>";    
+        return $html;
+    }
+    
 }
 
 ?>
