@@ -1,9 +1,13 @@
 <?php
 
 class harmonyLogic {
-
-    public function getHarmony ($sequenceOfChords) { // Array ( [0] => C [1] => F [2] => G [3] => C .....)
+    
+    public function __construct() {
         require_once './classes/harmonyCatalog.class.php';
+        require_once './classes/midiGenerator.class.php';        
+    }
+    
+    public function getHarmony ($sequenceOfChords) { // Array ( [0] => C [1] => F [2] => G [3] => C .....)
         $this->harmonyCatalog = new harmonyCatalog;
         $this->sequenceOfChords = $sequenceOfChords;  
         $this->sequenceOfHarmony = array ();
@@ -15,7 +19,6 @@ class harmonyLogic {
         #echo $this->createResultHTML ($this->sequenceOfHarmony);
         
         # Send array to MIDI Generator
-        require_once './classes/midiGenerator.class.php';
         $this->midiGenerator = new midiGenerator;
         $file = $this->midiGenerator->generateMIDIHarmony ($this->sequenceOfHarmony);
         
@@ -232,11 +235,12 @@ class harmonyLogic {
     public function convertMIDIToWAV ($file) {
         # Convert MIDI file to WAV using timidity in shell
         $cmd = "/usr/local/bin/timidity -Ow \"{$file}\"";   
+        
         #echo $cmd;
         exec ($cmd, $output, $exitStatus);
         if ($exitStatus != 0) {
             #echo nl2br (htmlspecialchars (implode ("\n", $output)));
-            echo "\n<p>The WAV file could not be created, due to an error with the converter</p>";  
+            echo "\n<p><pre>The WAV file could not be created, due to an error with the converter.</pre></p>";  
             return false;
         }
         return true;
