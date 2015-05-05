@@ -293,10 +293,10 @@ class chordCatalog {
      * @return string $randomMatchingChord Random chord from array
      */
     public function getRandomChordFromArray($array){
-        end($array);
-        $lastIndexKey = key($array);
-        $randomMatchingChord = rand(0,$lastIndexKey);
-        $matchingChord = $array[$randomMatchingChord];
+        foreach ($array as $key => $chord) {
+            $arrayOfKeys[] = $key;
+        }
+        $matchingChord = $array[rand(0, count($arrayOfKeys) - 1)];
         return $matchingChord;
     }
  
