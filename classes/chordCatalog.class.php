@@ -238,23 +238,23 @@ class chordCatalog {
     
     
     /*
-      *Function generates chords from a cypher array
-      *
-      *@param array $cadenceArray Array full of cyphers
-      *@param string $majorMinorDecider Tested for uppercase to decide tonality
-      *@param string $tonalityIndex Key for the Major tonality index array
-      *@param string $tonalityIndexMinor Key for the minor tonality index array
-      *
-      *@return array Array of chords
-      */
-      public function convertCypherIntoChord ($cadenceArray, $majorMinorDecider, $tonalityIndexMajor, $tonalityIndexMinor) {
-      $majorMinor = (ctype_upper ($majorMinorDecider) ? $tonalityIndexMajor : $tonalityIndexMinor);
-      foreach ($cadenceArray as &$cadenceCypher) {
-                $cadenceCypher = $this->tonalityIndex[$majorMinor][$cadenceCypher];
-      }   
-      unset ($cadenceCypher);
-      return $cadenceArray;
-      }
+    *Function generates chords from a cypher array
+    *
+    *@param array $cadenceArray Array full of cyphers
+    *@param string $majorMinorDecider Tested for uppercase to decide tonality
+    *@param string $tonalityIndex Key for the Major tonality index array
+    *@param string $tonalityIndexMinor Key for the minor tonality index array
+    *
+    *@return array Array of chords
+    */
+    public function convertCypherIntoChord ($array, $majorMinorDecider, $tonalityIndexMajor, $tonalityIndexMinor) {
+        $majorMinor = (ctype_upper ($majorMinorDecider) ? $tonalityIndexMajor : $tonalityIndexMinor);
+        foreach ($array as &$cadenceCypher) {
+          $cadenceCypher = $this->tonalityIndex[$majorMinor][$cadenceCypher];
+        }   
+        unset ($cadenceCypher);
+        return $array;
+    }
     
     
     /*
@@ -266,20 +266,12 @@ class chordCatalog {
      * @return string $matchingChord Returns next chord
      */
     public function getNextChord($stemChord, $startingKey){
-        
         # Gets corresponding entry for $stemChord
-
-        if (ctype_upper ($startingKey)) {
-                $matchingChord = $this->cypherMatrix[$stemChord];
-          }
-          else {
-                $matchingChord = $this->cypherMatrixMinor[$stemChord];
-          }
+        $matchingChord = (ctype_upper ($startingKey) ? $this->cypherMatrix[$stemChord] : $this->cypherMatrixMinor[$stemChord]);
         
-        # Tests if $matchingChord is itself an array and if TRUE
-        # retrieves random entry from its array   
+        # If $matchingChord is an array of chords, get random chord 
         while (is_array ($matchingChord)==TRUE) {
-                $matchingChord = $this->getRandomChordFromArray ($matchingChord);    
+            $matchingChord = $this->getRandomChordFromArray ($matchingChord);    
         }
         return $matchingChord;
     }
