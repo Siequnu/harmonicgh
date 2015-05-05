@@ -4,7 +4,6 @@ class midiGenerator {
     
 	private $errorMessage = '';
 
-	
 	public function __construct () {
 		# Do nothing
 	}
@@ -13,13 +12,12 @@ class midiGenerator {
 	
     public function generateMIDIHarmony ($array) {
     
-		# Transpose everything up 1 octaves
+		# Transpose everything up 2 octaves
 		foreach ($array as &$chord) {
 			foreach ($chord as &$note) {
 				$note = $note + 24;
 			}
 		}
-	
 			
 		# Add Midi Header
 		$midiInstructions = array ();
