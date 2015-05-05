@@ -9,7 +9,8 @@ class chordGenerator {
      
      public function __construct()
      {
-          # Do nothing   
+          require_once './classes/chordCatalog.class.php';
+          require_once './classes/harmonyLogic.class.php';
      }
      
     
@@ -39,6 +40,57 @@ class chordGenerator {
      }
      
      
+      /*
+     * Generates a form for data entry
+     *
+     * @param str $prompt1 Message prompt
+     * @param str $prompt2 Second Prompt
+     * @param str $name1 Name of data entered
+     * @param str $name2 Second Name
+     * @param str $submitValue Message on submit button
+     *
+     * @return string
+     */
+     private function generateForm () {
+          # Set form labels
+          $prompt1 = 'Number of verses';
+          $prompt2 = '"C" (major) or "c" (minor)?';
+          $name1 = 'numberOfBlocks';
+          $name2 = 'initialChord';
+          $submitValue = 'Generate music!';
+                    
+          # Generate HTML
+          $formhtml='<html>
+          <head>
+          <title>Harmony Generator</title>
+          <link rel="stylesheet" href="./content/style.css">
+          </head>
+          <body>
+            
+          <form action="' . $_SERVER['REQUEST_URI'] . '" method="post">
+            
+          ' . $prompt1 . ': <input type="number" name=' . $name1 . ' size="10">
+          <br /><br />
+          ' . $prompt2 . ': <input type="text" name=' . $name2 . ' size="10">
+          <br /><br />
+           
+          <input type="radio" name="radio" value="chord">Generate list of chords
+          <br /><br />
+          <input type="radio" name="radio" value="harmony">Generate 4-part harmony
+          <br /><br />
+            
+          <input type="submit" value="' . $submitValue . '">  
+          
+          </form>
+          
+          </body>
+            
+          </html>';
+          
+          return $formhtml;
+     }
+     
+     
      /*
       * Assigns form Data to variables
       */
@@ -49,10 +101,8 @@ class chordGenerator {
                $this->radioButtonOption = $_POST['radio'];
                if (htmlspecialchars($_POST['initialChord'] !== "C")) {
                     if (htmlspecialchars($_POST['initialChord'] !== "c")) {
-                         if ($this->radioButtonOption == 'harmony') { 
-                              echo '4-part harmony option only works with C or c. Please enter one of these options.';
+                              echo 'Harmony generation currently only works with C or c. Please enter one of these options.';
                               die;
-                         }
                     }
                }
           }
@@ -62,10 +112,11 @@ class chordGenerator {
                $this->initialChord = 'C';
                $this->radioButtonOption = 'harmony';
           } else {
-               $this->numberOfBlocks = $_POST['numberOfBlocks'];
+               $this->numberOfBlocks = htmlspecialchars($_POST['numberOfBlocks']);
                $this->initialChord = htmlspecialchars($_POST['initialChord']);
           }
      }
+     
      
      /*
       * Returns an array of generated chords
@@ -90,7 +141,6 @@ class chordGenerator {
      */
      public function generateBaroqueChords ($firstChord)
      {
-          require_once './classes/chordCatalog.class.php';
           $this->chordCatalog = new chordCatalog;     
           
           # Determine Tonalities       
@@ -119,11 +169,9 @@ class chordGenerator {
           # Initialize an empty array and set the first Chord
           unset ($this->sequence);
           $this->sequence[] = $firstChord;
-
-          $firstCadenceArray = $this->generateCadenceWithChords ($firstChord, 'CIndexMajor', 'CIndexMinor');
           
-          # Add cadence to sequence
-          $this->addArrayToMainSequence ($firstCadenceArray);
+          # Add first cadence Array to sequence
+          $this->addArrayToMainSequence ($this->generateCadenceWithChords ($firstChord, 'CIndexMajor', 'CIndexMinor'));
         
           # Get dominant Cadence 
           $dominantCadenceArray = $this->generateCadenceWithChords ($dominantKey, 'GIndexMajor', 'GIndexMinor');
@@ -189,57 +237,6 @@ class chordGenerator {
           $this->addArrayToMainSequence ($freeSequence);          
                     
           return $this->sequence;       
-     }
-     
-     
-      /*
-     * Generates a form for data entry
-     *
-     * @param str $prompt1 Message prompt
-     * @param str $prompt2 Second Prompt
-     * @param str $name1 Name of data entered
-     * @param str $name2 Second Name
-     * @param str $submitValue Message on submit button
-     *
-     * @return string
-     */
-     private function generateForm () {
-          # Set form labels
-          $prompt1 = 'Number of verses';
-          $prompt2 = '"C" (major) or "c" (minor)?';
-          $name1 = 'numberOfBlocks';
-          $name2 = 'initialChord';
-          $submitValue = 'Generate music!';
-                    
-          # Generate HTML
-          $formhtml='<html>
-          <head>
-          <title>Harmony Generator</title>
-          <link rel="stylesheet" href="./content/style.css">
-          </head>
-          <body>
-            
-          <form action="' . $_SERVER['REQUEST_URI'] . '" method="post">
-            
-          ' . $prompt1 . ': <input type="number" name=' . $name1 . ' size="10">
-          <br /><br />
-          ' . $prompt2 . ': <input type="text" name=' . $name2 . ' size="10">
-          <br /><br />
-           
-          <input type="radio" name="radio" value="chord">Generate list of chords
-          <br /><br />
-          <input type="radio" name="radio" value="harmony">Generate 4-part harmony
-          <br /><br />
-            
-          <input type="submit" value="' . $submitValue . '">  
-          
-          </form>
-          
-          </body>
-            
-          </html>';
-          
-          return $formhtml;
      }
      
      
@@ -383,46 +380,24 @@ class chordGenerator {
      
      
      public function progressionGeneratorMajor ($startingCypher) {
-          $randomChoice = mt_rand (1,2);
-          switch ($randomChoice) {
-               case "1":
-                    $chordOffset = 1;
-                    foreach ($this->chordCatalog->progressionListMaj1 as $newOffset) {
-                         $chordOffset = $this->serialIndexCorrector(($chordOffset + $newOffset));
-                         $progressionArray [] = $this->chordCatalog->cypherScale [$chordOffset];
-                    }
-                    break;
-               case "2":
-                    $chordOffset = 1;
-                    foreach ($this->chordCatalog->progressionListMaj2 as $newOffset) {
-                         $chordOffset = $this->serialIndexCorrector(($chordOffset + $newOffset));
-                         $progressionArray [] = $this->chordCatalog->cypherScale [$chordOffset];
-                    }
-                    break;
-               }
+          $progressionList = (mt_rand (1,2) == 1 ? $this->chordCatalog->progressionListMaj1 : $this->chordCatalog->progressionListMaj2);
+          $chordOffset = 1;
+          foreach ($progressionList as $newOffset) {
+                $chordOffset = $this->serialIndexCorrector(($chordOffset + $newOffset));
+                $progressionArray [] = $this->chordCatalog->cypherScale [$chordOffset];
+          }
           return $progressionArray;         
      }
      
      
      public function progressionGeneratorMinor ($startingCypher) {
-          $randomChoice = mt_rand (1,2);
-          switch ($randomChoice) {
-               case "1":
-                    $chordOffset = 1;
-                    foreach ($this->chordCatalog->progressionListMin1 as $newOffset) {
-                         $chordOffset = $this->serialIndexCorrector(($chordOffset + $newOffset));
-                         $progressionArray [] = $this->chordCatalog->cypherScaleMinor [$chordOffset];
-                    }
-                    break;
-               case "2":
-                    $chordOffset = 1;
-                    foreach ($this->chordCatalog->progressionListMin2 as $newOffset) {
-                         $chordOffset = $this->serialIndexCorrector(($chordOffset + $newOffset));
-                         $progressionArray [] = $this->chordCatalog->cypherScaleMinor [$chordOffset];
-                    }
-                    break;
-               }
-          return $progressionArray;         
+          $progressionList = (mt_rand (1,2) == 1 ? $this->chordCatalog->progressionListMin1 : $this->chordCatalog->progressionListMin2);
+          $chordOffset = 1;
+          foreach ($progressionList as $newOffset) {
+                $chordOffset = $this->serialIndexCorrector(($chordOffset + $newOffset));
+                $progressionArray [] = $this->chordCatalog->cypherScaleMinor [$chordOffset];
+          }
+          return $progressionArray;
      }
      
      
@@ -493,11 +468,10 @@ class chordGenerator {
           if (isset($_POST['radio'])) {
                if ($this->radioButtonOption == 'chord') {
                     # Organize array into blocks and produce HTML
-                    $html = $this->organizeSequence ($sequence,$this->numberOfBlocks);
+                    $html = $this->organizeSequenceToHTML ($sequence,$this->numberOfBlocks);
                     echo $html;      
                } else {
                     # Send to 4 voice Harmony Generator  
-                    require_once './classes/harmonyLogic.class.php';
                     $this->harmonyLogic = new harmonyLogic;
                     $this->harmonyLogic->getHarmony ($sequence);       
                }
@@ -513,7 +487,7 @@ class chordGenerator {
      *
      * @return string $html HTML of formatted chords
      */ 
-     private function organizeSequence($sequence,$numberOfBlocks)
+     private function organizeSequenceToHTML($sequence,$numberOfBlocks)
      {
           # Start the HTML
           $html='<head></head>
