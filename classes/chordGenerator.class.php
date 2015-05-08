@@ -7,8 +7,7 @@ class chordGenerator {
      private $numberOfBlocks = 4;
      private $initialChord = 'C';
      
-     public function __construct()
-     {
+     public function __construct() {
           require_once './classes/chordCatalog.class.php';
           require_once './classes/harmonyLogic.class.php';
      }
@@ -18,8 +17,7 @@ class chordGenerator {
      * Main entry into program 
      */
      public function main()
-     {          
-          
+     {           
           # Generate form and assign data
           echo $this->generateForm();
           
@@ -321,7 +319,7 @@ class chordGenerator {
                case 3: # I IV VII I
                     $firstCypherOffset = 5;
                     $secondCypherOffset = 6;
-                    break;
+                    break; 
           }     
           $firstCypherIndex = $this->serialIndexCorrector (($chordIndex + $firstCypherOffset));
           $secondCypherIndex = $this->serialIndexCorrector (($firstCypherIndex + $secondCypherOffset));
@@ -364,7 +362,8 @@ class chordGenerator {
           
           # Set initial index as first chord
           $progressionArray [] = $startingCypher;
-          # Generate progression sequence
+          
+          # Generate progression sequence  
           if (ctype_upper ($startingCypher)) { 
                $progressionSequence = $this->progressionGeneratorMajor ($startingCypher);
           } else {
@@ -412,17 +411,11 @@ class chordGenerator {
      public function getFreeSequence ($startingCypher, $numberOfRandomChords, $majMinIndicator) {
           $generatedCypher = $startingCypher;
           $freeSequence [] = $startingCypher;
-          if (ctype_upper ($majMinIndicator)) {
-               for ($chordsGenerated = 1; $chordsGenerated <=$numberOfRandomChords; $chordsGenerated++) {
-                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "M");
+          $majorOrMinor = (ctype_upper ($majMinIndicator) ? 'M' : 'm');
+          for ($chordsGenerated = 1; $chordsGenerated <=$numberOfRandomChords; $chordsGenerated++) {
+                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, $majorOrMinor);
                     $freeSequence [] = $generatedCypher;
-               }  
-          } else {
-               for ($chordsGenerated = 1; $chordsGenerated <=$numberOfRandomChords; $chordsGenerated++) {
-                    $generatedCypher = $this->chordCatalog->getNextChord ($generatedCypher, "m");
-                    $freeSequence [] = $generatedCypher;
-               }    
-          }
+          } 
           return $freeSequence;
      }
      
