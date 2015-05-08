@@ -19,14 +19,15 @@ harmonyLogic.class.php: Contains functions to generate smart 4-part harmony.
 
 midiGenerator.class.php: Contains functions to generate a MIDI file from an array of chords
 
-lib/midi/midi.class.php: 3rd party class containing MIDI functions.
+/lib/midi/midi.class.php: 3rd party class containing MIDI functions.
 
-content/style.css: CSS sheet
+/content/style.css: CSS sheet.
 
 # Deployment notes:
-	MIDI generation requires an output folder in the main directory which is writeable by the webserver process.
+	MIDI generation requires an output folder in the main directory which is writeable by the web server process.
 	MIDI to WAV conversion requires timidity (eg. $ brew install timidity).
 
-# Current issue:
-	Rules to be added to harmony generation to improve voice leading	
+# Todo:
+	Rules to be added to harmony generation to improve voice leading.
+	Implement polymorphism.	
 	Modulation support to be extended to all tonalities.
