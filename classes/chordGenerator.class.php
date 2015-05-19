@@ -60,7 +60,6 @@ class chordGenerator {
 
           # Create a form instance
           $form = new form (array (
-            'get'                    => 'true',
             'div'                    => 'form-download',
             'submitButtonText'       => 'Generate Baroque Harmony',
 			'formCompleteText'       => false,

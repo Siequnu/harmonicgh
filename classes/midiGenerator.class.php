@@ -11,21 +11,20 @@ class midiGenerator {
 	public function getErrorMessage () {return $this->errorMessage;}
 	
     public function generateMIDIHarmony ($array) {
-    
+	
 		# Transpose everything up 2 octaves
 		foreach ($array as &$chord) {
 			foreach ($chord as &$note) {
 				$note = $note + 24;
 			}
 		}
-			
 		# Add Midi Header
 		$midiInstructions = array ();
-		$midiInstructions[] = 'MFile 0 1 1000';
+		$midiInstructions[] = 'MFile 0 1 500';
 		$midiInstructions[] = 'MTrk';
-		$midiInstructions[] = '0 TimeSig 4/4 24 8';
-		$midiInstructions[] = '0 Tempo 750000';
-		$midiInstructions[] = '0 PrCh ch=1 p=1';
+		#$midiInstructions[] = '0 TimeSig 4/4 24 8';
+		#$midiInstructions[] = '0 Tempo 750000';
+		$midiInstructions[] = '0 PrCh ch=1 p=53';
 		
 		# Add main track with chords
 		$midiTimeStamp = 1000;
