@@ -30,7 +30,7 @@ class harmonyLogic {
         $this->convertMIDIToWAV ($file);
         
         # Echo HTML5 tag with converted WAV file
-        $location = '/harmonic/output/' . pathinfo ($file, PATHINFO_FILENAME) . '.wav';
+        $location = './output/' . pathinfo ($file, PATHINFO_FILENAME) . '.wav';
         echo $this->getAudioHTMLTag ($location);
         
     }
